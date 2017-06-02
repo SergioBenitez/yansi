@@ -4,7 +4,6 @@ A dead simple ANSI terminal color painting library.
 
 ```rust
 use yansi::Paint;
-use yansi::Color::White;
 
 println!("{} light, {} light!", Paint::green("Green"), Paint::red("red"));
 ```

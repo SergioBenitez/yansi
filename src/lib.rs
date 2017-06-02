@@ -158,6 +158,21 @@ pub enum Color {
     RGB(u8, u8, u8),
 }
 
+impl Color {
+    /// Constructs a new `Paint` structure that encapsulates `item` with the
+    /// foreground color set to the color `self`.
+    ///
+    /// ```rust
+    /// use yansi::Color::Blue;
+    ///
+    /// println!("This is going to be blue: {}", Blue.paint("yay!"));
+    /// ```
+    #[inline(always)]
+    pub fn paint<T>(self, item: T) -> Paint<T> {
+        Paint::new(item).fg(self)
+    }
+}
+
 #[doc(hidden)]
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -34,6 +34,20 @@
 //! [`cyan`]: struct.Paint.html#method.cyan,
 //! [`white`]: struct.Paint.html#method.white
 //!
+//! You can also use the [`paint`] method on a given [`Color`] value to
+//! construct a `Paint` type:
+//!
+//! [`paint`]: enum.Color.html#method.paint
+//! [`Color`]: enum.Color.html
+//!
+//! ```rust
+//! use yansi::Paint;
+//! use yansi::Color::Red;
+//!
+//! println!("I'm {}!", Paint::red("red").bold());
+//! println!("I'm also {}!", Red.paint("red").underline());
+//! ```
+//!
 //! Each of these methods sets the foreground color of the item to be displayed
 //! according to the name of the method. Additionally, [`rgb`] and [`fixed`]
 //! allow you to customize the foreground color to your liking.

@@ -124,8 +124,8 @@ fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Formatter, t: T) -> fmt:
 /// An enum representing an ANSI color code.
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub enum Color {
-    /// No color. Nothing is changed when applied.
-    None,
+    /// No color has been set. Nothing is changed when applied.
+    Unset,
 
     /// Black #0 (foreground code `30`, background code `40`).
     Black,
@@ -177,7 +177,7 @@ impl Color {
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Color::None => Ok(()),
+            Color::Unset => Ok(()),
             Color::Black => write!(f, "0"),
             Color::Red => write!(f, "1"),
             Color::Green => write!(f, "2"),
@@ -195,7 +195,7 @@ impl fmt::Display for Color {
 impl Default for Color {
     #[inline(always)]
     fn default() -> Self {
-        Color::None
+        Color::Unset
     }
 }
 
@@ -366,12 +366,12 @@ impl<T> Paint<T> {
             write_spliced(&mut splice, f, i)?;
         }
 
-        if self.background != Color::None {
+        if self.background != Color::Unset {
             write_spliced(&mut splice, f, "4")?;
             self.background.fmt(f)?;
         }
 
-        if self.foreground != Color::None {
+        if self.foreground != Color::Unset {
             write_spliced(&mut splice, f, "3")?;
             self.foreground.fmt(f)?;
         }

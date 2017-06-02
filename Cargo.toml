@@ -1,6 +1,6 @@
 [package]
 name = "yansi"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Sergio Benitez <sb@sergio.bz>"]
 repository = "https://github.com/SergioBenitez/yansi"
 documentation = "https://sergio.bz/rustdocs/yansi"

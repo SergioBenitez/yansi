@@ -83,6 +83,21 @@
 //! of the contained object and nothing else. Painting can be reenabled via the
 //! [`Paint::enable()`] method.
 //!
+//! One potential use of this feature is to allow users to control color ouput
+//! via an environment variable. For instance, to disable coloring if the
+//! `CLICOLOR` variable is set to `0`, you might write:
+//!
+//! ```rust
+//! # #[cfg(feature = "nightly")]
+//! # {
+//! use yansi::Paint;
+//!
+//! if let Ok(true) = std::env::var("CLICOLOR").map(|v| v == "0") {
+//!     Paint::disable();
+//! }
+//! # }
+//! ```
+//!
 //! [`Paint::disable()`]: struct.Paint.html#method.disable
 //! [`Paint::enable()`]: struct.Paint.html#method.disable
 //!
@@ -93,10 +108,15 @@
 //! bummer, I know. If you'd like, `yansi` makes it easy to disable coloring on
 //! Windows:
 //!
-//! ```rust,ignore
+//! ```rust
+//! # #[cfg(feature = "nightly")]
+//! # {
+//! use yansi::Paint;
+//!
 //! if cfg!(windows) {
 //!     Paint::disable();
 //! }
+//! # }
 //! ```
 //!
 //! # Why?

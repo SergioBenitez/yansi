@@ -128,13 +128,13 @@
 //!   * This library is _much_ simpler: there are two types! The complete
 //!     implementation is under 200 lines of code.
 //!   * Like [`term_painter`], but unlike [`ansi_term`], _any_ type implementing
-//!     `Display` can be stylized, not just strings.
+//!     `Display` can be stylized, not only strings.
 //!   * Styling can be enabled and disabled on the fly.
 //!   * Typically, only one type needs to be imported: `Paint`.
 //!   * Zero dependencies. It really is simple.
 //!   * The name `yansi` is pretty short.
 //!
-//! All that being said, this library borrowed the general API from all three
+//! All that being said, this library borrows the general API from the three
 //! libraries as well as plenty of code from [`ansi_term`].
 //!
 //! [`ansi_term`]: https://crates.io/crates/ansi_term

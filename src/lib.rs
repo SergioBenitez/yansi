@@ -228,7 +228,7 @@ struct Style {
 
 /// A structure encapsulating all of the styling for a given item.
 ///
-/// See the [crate level documentation](../) for usage information.
+/// See the [crate level documentation](./) for usage information.
 #[derive(Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct Paint<T> {
     item: T,

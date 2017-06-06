@@ -17,13 +17,24 @@
 //!
 //! ## `Paint`
 //!
-//! The only entry paint to this library is the `Paint` type. `Paint`
-//! encapsulates a value of any type that implements the `Display` trait. When a
-//! `Paint` is `Display`ed, the appropriate ANSI codes are emitted before and
-//! after the `Display` implementation of the wrapped type.
+//! The main entry point into this library is the `Paint` type. `Paint`
+//! encapsulates a value of any type that implements the `Display` or `Debug`
+//! trait. When a `Paint` is `Display`ed or `Debug`ed, the appropriate ANSI
+//! escape characters are emitted before and after the wrapped type's `fmt`
+//! implementation.
 //!
 //! `Paint` can be constructed via any of following methods: [`black`], [`red`],
-//! [`green`], [`yellow`], [`blue`], [`purple`], [`cyan`], [`white`].
+//! [`green`], [`yellow`], [`blue`], [`purple`], [`cyan`], [`white`]. You can
+//! also use the [`paint`] method on a given [`Color`] value to construct a
+//! `Paint` type. Both of these methods are shown below:
+//!
+//! ```rust
+//! use yansi::Paint;
+//! use yansi::Color::Red;
+//!
+//! println!("I'm {}!", Paint::red("red").bold());
+//! println!("I'm also {}!", Red.paint("red").underline());
+//! ```
 //!
 //! [`black`]: struct.Paint.html#method.black,
 //! [`red`]: struct.Paint.html#method.red,
@@ -33,20 +44,8 @@
 //! [`purple`]: struct.Paint.html#method.purple,
 //! [`cyan`]: struct.Paint.html#method.cyan,
 //! [`white`]: struct.Paint.html#method.white
-//!
-//! You can also use the [`paint`] method on a given [`Color`] value to
-//! construct a `Paint` type:
-//!
 //! [`paint`]: enum.Color.html#method.paint
 //! [`Color`]: enum.Color.html
-//!
-//! ```rust
-//! use yansi::Paint;
-//! use yansi::Color::Red;
-//!
-//! println!("I'm {}!", Paint::red("red").bold());
-//! println!("I'm also {}!", Red.paint("red").underline());
-//! ```
 //!
 //! Each of these methods sets the foreground color of the item to be displayed
 //! according to the name of the method. Additionally, [`rgb`] and [`fixed`]
@@ -89,13 +88,13 @@
 //!
 //! ```rust
 //! # #[cfg(feature = "nightly")]
-//! # {
+//! # { if false { // we don't actually want to disable coloring
 //! use yansi::Paint;
 //!
 //! if let Ok(true) = std::env::var("CLICOLOR").map(|v| v == "0") {
 //!     Paint::disable();
 //! }
-//! # }
+//! # } }
 //! ```
 //!
 //! [`Paint::disable()`]: struct.Paint.html#method.disable
@@ -110,13 +109,13 @@
 //!
 //! ```rust
 //! # #[cfg(feature = "nightly")]
-//! # {
+//! # { if false { // we don't actually want to disable coloring
 //! use yansi::Paint;
 //!
 //! if cfg!(windows) {
 //!     Paint::disable();
 //! }
-//! # }
+//! # } }
 //! ```
 //!
 //! # Why?
@@ -126,7 +125,7 @@
 //! Here are a few reasons:
 //!
 //!   * This library is _much_ simpler: there are two types! The complete
-//!     implementation is under 200 lines of code.
+//!     implementation is under 250 lines of code.
 //!   * Like [`term_painter`], but unlike [`ansi_term`], _any_ type implementing
 //!     `Display` can be stylized, not only strings.
 //!   * Styling can be enabled and disabled on the fly.
@@ -249,7 +248,7 @@ struct Style {
 /// A structure encapsulating all of the styling for a given item.
 ///
 /// See the [crate level documentation](./) for usage information.
-#[derive(Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
+#[derive(Default, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct Paint<T> {
     item: T,
     foreground: Color,
@@ -466,24 +465,34 @@ impl Paint<()> {
     }
 }
 
-impl<T: fmt::Display> fmt::Display for Paint<T>  {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        #[cfg(feature="nightly")]
-        {
-            if !DISABLED.load(Ordering::Relaxed) {
-                self.write_prefix(f)?;
-                self.item.fmt(f)?;
-                self.write_suffix(f)
-            } else {
-                self.item.fmt(f)
-            }
-        }
+fn paint_enabled() -> bool {
+    #[cfg(feature="nightly")]
+    { !DISABLED.load(Ordering::Relaxed) }
 
-        #[cfg(not(feature="nightly"))]
-        {
+    #[cfg(not(feature="nightly"))]
+    { true }
+}
+
+impl<T: fmt::Display> fmt::Display for Paint<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if paint_enabled() {
             self.write_prefix(f)?;
             self.item.fmt(f)?;
             self.write_suffix(f)
+        } else {
+            self.item.fmt(f)
+        }
+    }
+}
+
+impl<T: fmt::Debug> fmt::Debug for Paint<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if paint_enabled() {
+            self.write_prefix(f)?;
+            self.item.fmt(f)?;
+            self.write_suffix(f)
+        } else {
+            self.item.fmt(f)
         }
     }
 }

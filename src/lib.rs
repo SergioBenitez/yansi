@@ -24,16 +24,20 @@
 //! implementation.
 //!
 //! `Paint` can be constructed via any of following methods: [`black`], [`red`],
-//! [`green`], [`yellow`], [`blue`], [`purple`], [`cyan`], [`white`]. You can
-//! also use the [`paint`] method on a given [`Color`] value to construct a
-//! `Paint` type. Both of these methods are shown below:
+//! [`green`], [`yellow`], [`blue`], [`purple`], [`cyan`], [`white`]. Each of
+//! these methods sets the foreground color of the item to be displayed
+//! according to the name of the method. Additionally, [`rgb`] and [`fixed`]
+//! allow you to customize the foreground color to your liking. In addition to
+//! these constructors, you can also use the [`paint`] method on a given
+//! [`Color`] value to construct a `Paint` type. Both of these approaches are
+//! shown below:
 //!
 //! ```rust
 //! use yansi::Paint;
 //! use yansi::Color::Red;
 //!
 //! println!("I'm {}!", Paint::red("red").bold());
-//! println!("I'm also {}!", Red.paint("red").underline());
+//! println!("I'm also {}!", Red.paint("red").bold());
 //! ```
 //!
 //! [`black`]: struct.Paint.html#method.black,
@@ -46,11 +50,6 @@
 //! [`white`]: struct.Paint.html#method.white
 //! [`paint`]: enum.Color.html#method.paint
 //! [`Color`]: enum.Color.html
-//!
-//! Each of these methods sets the foreground color of the item to be displayed
-//! according to the name of the method. Additionally, [`rgb`] and [`fixed`]
-//! allow you to customize the foreground color to your liking.
-//!
 //! [`rgb`]: struct.Paint.html#method.rgb
 //! [`fixed`]: struct.Paint.html#method.fixed
 //!
@@ -78,9 +77,9 @@
 //!
 //! On Rust nightly and with the `nightly` feature enabled, painting can be
 //! disabled globally via the [`Paint::disable()`] method. When painting is
-//! disabled, the `Display` implementation for `Paint` will emit the `Display`
-//! of the contained object and nothing else. Painting can be reenabled via the
-//! [`Paint::enable()`] method.
+//! disabled, the `Display` and `Debug` implementations for `Paint` will emit
+//! the `Display` or `Debug` of the contained object and nothing else. Painting
+//! can be reenabled via the [`Paint::enable()`] method.
 //!
 //! One potential use of this feature is to allow users to control color ouput
 //! via an environment variable. For instance, to disable coloring if the
@@ -100,23 +99,46 @@
 //! [`Paint::disable()`]: struct.Paint.html#method.disable
 //! [`Paint::enable()`]: struct.Paint.html#method.disable
 //!
-//! # Windows
+//! ## Masking
 //!
-//! This is an _ANSI_ terminal coloring library. Unless the Windows terminal
-//! supports ANSI colors, colors won't display properly on Windows. This is a
-//! bummer, I know. If you'd like, `yansi` makes it easy to disable coloring on
-//! Windows:
+//! `Paint` structures can _mask_ arbitrary values. When a value is masked and
+//! painting is disabled, the `Display` and `Debug` implementations of `Paint`
+//! write nothing. This allows you to selectively omit output when painting is
+//! disabled. Values can be masked using the [`mask`] builder method or
+//! [`Paint::masked()`] constructor.
+//!
+//! [`mask`]: struct.Paint.html#method.mask
+//! [`Paint::masked()`]: struct.Paint.html#method.masked
+//!
+//! One use for this feature is to print certain characters only when painting
+//! is enabled. For instance, you might wish to emit the 🎨 emoji when
+//! coloring is enabled but not otherwise. This can be accomplished by masking
+//! the emoji:
 //!
 //! ```rust
-//! # #[cfg(feature = "nightly")]
-//! # { if false { // we don't actually want to disable coloring
 //! use yansi::Paint;
 //!
-//! if cfg!(windows) {
-//!     Paint::disable();
-//! }
-//! # } }
+//! println!("I like colors!{}", Paint::masked(" 🎨"));
 //! ```
+//!
+//! This will print "I like colors! 🎨" when painting is enabled and "I like
+//! colors!" when painting is disabled.
+//!
+//! # Windows
+//!
+//! Since the Windows 10 anniversary update, Windows consoles support ANSII
+//! escape sequences. This support, however, must be explicitly enabled. `yansi`
+//! provides the [`Paint::enable_windows_ascii()`] method to enable ASCII
+//! support on Windows consoles when available.
+//!
+//! ```rust
+//! use yansi::Paint;
+//!
+//! // Enable ASCII escape sequence support on Windows consoles.
+//! Paint::enable_windows_ascii();
+//! ```
+//!
+//! [`Paint::enable_windows_ascii()`]: struct.Paint.html#method.enable_windows_ascii
 //!
 //! # Why?
 //!
@@ -125,7 +147,7 @@
 //! Here are a few reasons:
 //!
 //!   * This library is _much_ simpler: there are two types! The complete
-//!     implementation is under 250 lines of code.
+//!     implementation is only about 250 lines of code.
 //!   * Like [`term_painter`], but unlike [`ansi_term`], _any_ type implementing
 //!     `Display` can be stylized, not only strings.
 //!   * Styling can be enabled and disabled on the fly.
@@ -143,6 +165,7 @@
 use std::fmt::{self, Display};
 
 #[cfg(test)] mod tests;
+mod windows;
 
 #[inline(always)]
 fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Formatter, t: T) -> fmt::Result {
@@ -227,9 +250,7 @@ impl fmt::Display for Color {
 
 impl Default for Color {
     #[inline(always)]
-    fn default() -> Self {
-        Color::Unset
-    }
+    fn default() -> Self { Color::Unset }
 }
 
 #[repr(packed)]
@@ -254,6 +275,7 @@ pub struct Paint<T> {
     foreground: Color,
     background: Color,
     style: Style,
+    masked: bool,
 }
 
 macro_rules! constructors_for {
@@ -274,13 +296,13 @@ macro_rules! constructors_for {
 
 macro_rules! style_builder_for {
     ($T:ty, $($name:ident),*) => ($(
-            /// Enables the styling corresponding to the name of this method.
-            ///
-            /// ```rust
-            /// use yansi::Paint;
-            ///
-            /// println!("Red, underlined: {}", Paint::red("beep.").underline());
-            /// ```
+        /// Enables the styling corresponding to the name of this method.
+        ///
+        /// ```rust
+        /// use yansi::Paint;
+        ///
+        /// println!("Red, underlined: {}", Paint::red("beep.").underline());
+        /// ```
         #[inline(always)]
         pub fn $name(mut self) -> Paint<$T> {
             self.style.$name = true;
@@ -288,11 +310,6 @@ macro_rules! style_builder_for {
         }
     )*)
 }
-
-#[cfg(feature="nightly")] use std::sync::atomic::AtomicBool;
-#[cfg(feature="nightly")] use std::sync::atomic::Ordering;
-
-#[cfg(feature="nightly")] static DISABLED: AtomicBool = AtomicBool::new(false);
 
 impl<T> Paint<T> {
     /// Constructs a new `Paint` structure that encapsulates `item`. No styling
@@ -309,8 +326,24 @@ impl<T> Paint<T> {
             item: item,
             foreground: Color::default(),
             background: Color::default(),
-            style: Style::default()
+            style: Style::default(),
+            masked: false
         }
+    }
+
+    /// Constructs a new `Paint` structure that encapsulates `item` and masks
+    /// it. No styling is applied. A masked item is not written out when
+    /// painting is disabled during `Display` or `Debug` invocations. When
+    /// painting is enabled, masking has no effect.
+    ///
+    /// ```rust
+    /// use yansi::Paint;
+    ///
+    /// println!("{}Sprout!", Paint::masked("🌱 "));
+    /// ```
+    #[inline(always)]
+    pub fn masked(item: T) -> Paint<T> {
+        Paint::new(item).mask()
     }
 
     constructors_for!(T, black: Black, red: Red, green: Green, yellow: Yellow,
@@ -370,6 +403,21 @@ impl<T> Paint<T> {
         self
     }
 
+    /// Masks `self`. A masked item is not written out when painting is disabled
+    /// during `Display` or `Debug` invocations. When painting is enabled,
+    /// masking has no effect.
+    ///
+    /// ```rust
+    /// use yansi::Paint;
+    ///
+    /// println!("{}Something happened.", Paint::red("Whoops! ").mask());
+    /// ```
+    #[inline(always)]
+    pub fn mask(mut self) -> Paint<T> {
+        self.masked = true;
+        self
+    }
+
     style_builder_for!(T, bold, dimmed, italic, underline, blink, invert, hidden, strikethrough);
 
     #[inline]
@@ -416,19 +464,24 @@ impl<T> Paint<T> {
     /// Write any ANSI codes that go *after* a piece of text. These should be
     /// the codes to *reset* the terminal back to its normal colour and style.
     fn write_suffix(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if !self.is_plain() {
-            write!(f, "\x1B[0m")?;
+        if self.is_plain() {
+            return Ok(());
         }
 
-        Ok(())
+        write!(f, "\x1B[0m")
     }
 }
 
-#[cfg(feature="nightly")]
+#[cfg(feature="nightly")] use std::sync::atomic::AtomicBool;
+#[cfg(feature="nightly")] use std::sync::atomic::Ordering;
+#[cfg(feature="nightly")] static DISABLED: AtomicBool = AtomicBool::new(false);
+
 impl Paint<()> {
     /// Disables coloring globally.
     ///
     /// This method is only available when the "nightly" feature is enabled.
+    ///
+    /// # Example
     ///
     /// ```rust
     /// use yansi::Paint;
@@ -440,14 +493,17 @@ impl Paint<()> {
     /// Paint::disable();
     /// assert_eq!(Paint::green("go").to_string(), "go".to_string());
     /// ```
+    #[cfg(feature="nightly")]
     pub fn disable() {
         DISABLED.store(true, Ordering::Release);
     }
 
-    /// Enabled coloring globally. Coloring is enabled by default, so this
+    /// Enables coloring globally. Coloring is enabled by default, so this
     /// method should only be called to _re_ enable coloring.
     ///
     /// This method is only available when the "nightly" feature is enabled.
+    ///
+    /// # Example
     ///
     /// ```rust
     /// use yansi::Paint;
@@ -460,8 +516,31 @@ impl Paint<()> {
     /// Paint::enable();
     /// assert_ne!(Paint::green("go").to_string(), "go".to_string());
     /// ```
+    #[cfg(feature="nightly")]
     pub fn enable() {
         DISABLED.store(false, Ordering::Release);
+    }
+
+    /// Enables ASCII terminal escape sequences on Windows consoles when
+    /// possible. Returns `true` if escape sequence support was successfully
+    /// enabled and `false` otherwise. On non-Windows targets, this method
+    /// always returns `true`.
+    ///
+    /// Support for escape sequences in Windows consoles was added in the
+    /// Windows 10 anniversary update. For targets with older Windows
+    /// installations, this method is expected to return `false`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::Paint;
+    ///
+    /// // A best-effort Windows ASCII terminal support enabling.
+    /// Paint::enable_windows_ascii();
+    /// ```
+    #[inline(always)]
+    pub fn enable_windows_ascii() -> bool {
+        windows::enable_ascii_colors()
     }
 }
 
@@ -479,8 +558,10 @@ impl<T: fmt::Display> fmt::Display for Paint<T> {
             self.write_prefix(f)?;
             self.item.fmt(f)?;
             self.write_suffix(f)
-        } else {
+        } else if !self.masked {
             self.item.fmt(f)
+        } else {
+            Ok(())
         }
     }
 }
@@ -491,8 +572,10 @@ impl<T: fmt::Debug> fmt::Debug for Paint<T> {
             self.write_prefix(f)?;
             self.item.fmt(f)?;
             self.write_suffix(f)
-        } else {
+        } else if !self.masked {
             self.item.fmt(f)
+        } else {
+            Ok(())
         }
     }
 }

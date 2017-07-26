@@ -151,6 +151,7 @@
 //!   * Like [`term_painter`], but unlike [`ansi_term`], _any_ type implementing
 //!     `Display` can be stylized, not only strings.
 //!   * Styling can be enabled and disabled on the fly.
+//!   * Arbitrary items can be _masked_ for selective disabling.
 //!   * Typically, only one type needs to be imported: `Paint`.
 //!   * Zero dependencies. It really is simple.
 //!   * The name `yansi` is pretty short.

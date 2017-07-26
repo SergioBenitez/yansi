@@ -3,7 +3,7 @@ name = "yansi"
 version = "0.3.1"
 authors = ["Sergio Benitez <sb@sergio.bz>"]
 repository = "https://github.com/SergioBenitez/yansi"
-documentation = "https://sergio.bz/rustdocs/yansi"
+documentation = "https://docs.rs/yansi"
 description = "A dead simple ANSI terminal color painting library."
 keywords = ["ansi", "terminal", "color", "format", "paint"]
 readme = "README.md"
@@ -14,3 +14,6 @@ categories = ["command-line-interface"]
 nightly = []
 
 [dependencies]
+
+[package.metadata.docs.rs]
+all-features = true

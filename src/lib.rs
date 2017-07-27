@@ -127,7 +127,7 @@
 //!
 //! # Windows
 //!
-//! Since the Windows 10 anniversary update, Windows consoles support ANSII
+//! Since the Windows 10 anniversary update, Windows consoles support ANSI
 //! escape sequences. This support, however, must be explicitly enabled. `yansi`
 //! provides the [`Paint::enable_windows_ascii()`] method to enable ASCII
 //! support on Windows consoles when available.

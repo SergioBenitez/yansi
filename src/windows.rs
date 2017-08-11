@@ -11,6 +11,7 @@ mod windows_console {
 
     const ENABLE_VIRTUAL_TERMINAL_PROCESSING: DWORD = 0x0004;
     const STD_OUTPUT_HANDLE: DWORD = 0xFFFFFFF5;
+    const STD_ERROR_HANDLE: DWORD = 0xFFFFFFF4;
     const INVALID_HANDLE_VALUE: HANDLE = -1isize as HANDLE;
     const FALSE: BOOL = 0;
     const TRUE: BOOL = 1;
@@ -22,21 +23,41 @@ mod windows_console {
         fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> BOOL;
     }
 
-    pub fn enable_ascii_colors() -> bool {
-        unsafe {
-            let stdout_handle: HANDLE = GetStdHandle(STD_OUTPUT_HANDLE);
-            if stdout_handle == INVALID_HANDLE_VALUE {
-                return false
-            }
-
-            let mut dw_mode: DWORD = 0;
-            if GetConsoleMode(stdout_handle, &mut dw_mode) == FALSE {
-                return false
-            }
-
-            dw_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            SetConsoleMode(stdout_handle, dw_mode) == TRUE
+    unsafe fn get_handle(handle_num: DWORD) -> Result<HANDLE, ()> {
+        match GetStdHandle(handle_num) {
+            handle if handle == INVALID_HANDLE_VALUE => Err(()),
+            handle => Ok(handle)
         }
+    }
+
+    unsafe fn enable_vt(handle: HANDLE) -> Result<(), ()> {
+        let mut dw_mode: DWORD = 0;
+        if GetConsoleMode(handle, &mut dw_mode) == FALSE {
+            return Err(());
+        }
+
+        dw_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        match SetConsoleMode(handle, dw_mode) {
+            result if result == TRUE => Ok(()),
+            _ => Err(())
+        }
+    }
+
+    unsafe fn enable_ascii_colors_raw() -> Result<bool, ()> {
+        let stdout_handle = get_handle(STD_OUTPUT_HANDLE)?;
+        let stderr_handle = get_handle(STD_ERROR_HANDLE)?;
+
+        enable_vt(stdout_handle)?;
+        if stdout_handle != stderr_handle {
+            enable_vt(stderr_handle)?;
+        }
+
+        Ok(true)
+    }
+
+    #[inline]
+    pub fn enable_ascii_colors() -> bool {
+        unsafe { enable_ascii_colors_raw().unwrap_or(false) }
     }
 }
 

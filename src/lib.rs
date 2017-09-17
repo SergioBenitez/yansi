@@ -554,30 +554,23 @@ fn paint_enabled() -> bool {
     { true }
 }
 
-impl<T: fmt::Display> fmt::Display for Paint<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if paint_enabled() {
-            self.write_prefix(f)?;
-            self.item.fmt(f)?;
-            self.write_suffix(f)
-        } else if !self.masked {
-            self.item.fmt(f)
-        } else {
-            Ok(())
+macro_rules! impl_fmt_trait {
+    ($trait:ident) => (
+        impl<T: fmt::$trait> fmt::$trait for Paint<T> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                if paint_enabled() {
+                    self.write_prefix(f)?;
+                    fmt::$trait::fmt(&self.item, f)?;
+                    self.write_suffix(f)
+                } else if !self.masked {
+                    fmt::$trait::fmt(&self.item, f)
+                } else {
+                    Ok(())
+                }
+            }
         }
-    }
+    )
 }
 
-impl<T: fmt::Debug> fmt::Debug for Paint<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if paint_enabled() {
-            self.write_prefix(f)?;
-            self.item.fmt(f)?;
-            self.write_suffix(f)
-        } else if !self.masked {
-            self.item.fmt(f)
-        } else {
-            Ok(())
-        }
-    }
-}
+impl_fmt_trait!(Display);
+impl_fmt_trait!(Debug);

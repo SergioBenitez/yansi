@@ -15,5 +15,8 @@ nightly = []
 
 [dependencies]
 
+[dev-dependencies]
+parking_lot = { version = "0.4", features = ["nightly"] }
+
 [package.metadata.docs.rs]
 all-features = true

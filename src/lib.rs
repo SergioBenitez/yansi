@@ -1,4 +1,4 @@
-#![cfg_attr(feature="nightly", feature(const_fn))]
+#![cfg_attr(feature="nightly", feature(const_atomic_bool_new))]
 #![doc(html_root_url = "https://docs.rs/yansi/0.3")]
 
 //! A dead simple ANSI terminal color painting library.

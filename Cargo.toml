@@ -1,6 +1,6 @@
 [package]
 name = "yansi"
-version = "0.3.4"
+version = "0.4.0-dev"
 authors = ["Sergio Benitez <sb@sergio.bz>"]
 repository = "https://github.com/SergioBenitez/yansi"
 documentation = "https://docs.rs/yansi"
@@ -10,13 +10,7 @@ readme = "README.md"
 license = "MIT/Apache-2.0"
 categories = ["command-line-interface"]
 
-[features]
-nightly = []
-
 [dependencies]
 
 [dev-dependencies]
 parking_lot = { version = "0.4", features = ["nightly"] }
-
-[package.metadata.docs.rs]
-all-features = true

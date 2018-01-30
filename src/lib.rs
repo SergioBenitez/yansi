@@ -1,4 +1,3 @@
-#![cfg_attr(feature="nightly", feature(const_atomic_bool_new))]
 #![doc(html_root_url = "https://docs.rs/yansi/0.3")]
 
 //! A dead simple ANSI terminal color painting library.
@@ -76,18 +75,16 @@
 //!
 //! # Disabling
 //!
-//! On Rust nightly and with the `nightly` feature enabled, painting can be
-//! disabled globally via the [`Paint::disable()`] method. When painting is
-//! disabled, the `Display` and `Debug` implementations for `Paint` will emit
-//! the `Display` or `Debug` of the contained object and nothing else. Painting
-//! can be reenabled via the [`Paint::enable()`] method.
+//! Painting can be disabled globally via the [`Paint::disable()`] method. When
+//! painting is disabled, the `Display` and `Debug` implementations for `Paint`
+//! will emit the `Display` or `Debug` of the contained object and nothing else.
+//! Painting can be reenabled via the [`Paint::enable()`] method.
 //!
 //! One potential use of this feature is to allow users to control color ouput
 //! via an environment variable. For instance, to disable coloring if the
 //! `CLICOLOR` variable is set to `0`, you might write:
 //!
 //! ```rust
-//! # #[cfg(feature = "nightly")]
 //! # { if false { // we don't actually want to disable coloring
 //! use yansi::Paint;
 //!
@@ -474,14 +471,34 @@ impl<T> Paint<T> {
     }
 }
 
-#[cfg(feature="nightly")] use std::sync::atomic::AtomicBool;
-#[cfg(feature="nightly")] use std::sync::atomic::Ordering;
-#[cfg(feature="nightly")] static DISABLED: AtomicBool = AtomicBool::new(false);
+macro_rules! impl_fmt_trait {
+    ($trait:ident) => (
+        impl<T: fmt::$trait> fmt::$trait for Paint<T> {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                if Paint::is_enabled() {
+                    self.write_prefix(f)?;
+                    fmt::$trait::fmt(&self.item, f)?;
+                    self.write_suffix(f)
+                } else if !self.masked {
+                    fmt::$trait::fmt(&self.item, f)
+                } else {
+                    Ok(())
+                }
+            }
+        }
+    )
+}
+
+impl_fmt_trait!(Display);
+impl_fmt_trait!(Debug);
+
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
+
+static ENABLED: AtomicBool = AtomicBool::new(true);
 
 impl Paint<()> {
     /// Disables coloring globally.
-    ///
-    /// This method is only available when the "nightly" feature is enabled.
     ///
     /// # Example
     ///
@@ -495,15 +512,12 @@ impl Paint<()> {
     /// Paint::disable();
     /// assert_eq!(Paint::green("go").to_string(), "go".to_string());
     /// ```
-    #[cfg(feature="nightly")]
     pub fn disable() {
-        DISABLED.store(true, Ordering::Release);
+        ENABLED.store(false, Ordering::Release);
     }
 
     /// Enables coloring globally. Coloring is enabled by default, so this
     /// method should only be called to _re_ enable coloring.
-    ///
-    /// This method is only available when the "nightly" feature is enabled.
     ///
     /// # Example
     ///
@@ -518,9 +532,35 @@ impl Paint<()> {
     /// Paint::enable();
     /// assert_ne!(Paint::green("go").to_string(), "go".to_string());
     /// ```
-    #[cfg(feature="nightly")]
     pub fn enable() {
-        DISABLED.store(false, Ordering::Release);
+        ENABLED.store(true, Ordering::Release);
+    }
+
+    /// Returns `true` if coloring is enabled and `false` otherwise. Coloring is
+    /// enabled by default but can be enabled and disabled on-the-fly with the 
+    /// [`Paint::enable()`] and [`Paint::disable()`] methods.
+    ///
+    /// [`Paint::disable()`]: struct.Paint.html#method.disable
+    /// [`Paint::enable()`]: struct.Paint.html#method.disable
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::Paint;
+    ///
+    /// // Coloring is enabled by default.
+    /// assert!(Paint::is_enabled());
+    ///
+    /// // Disable it with `Paint::disable()`.
+    /// Paint::disable();
+    /// assert!(!Paint::is_enabled());
+    ///
+    /// // Reenable with `Paint::enable()`.
+    /// Paint::enable();
+    /// assert!(Paint::is_enabled());
+    /// ```
+    pub fn is_enabled() -> bool {
+        ENABLED.load(Ordering::Relaxed)
     }
 
     /// Enables ASCII terminal escape sequences on Windows consoles when
@@ -545,32 +585,3 @@ impl Paint<()> {
         windows::enable_ascii_colors()
     }
 }
-
-fn paint_enabled() -> bool {
-    #[cfg(feature="nightly")]
-    { !DISABLED.load(Ordering::Relaxed) }
-
-    #[cfg(not(feature="nightly"))]
-    { true }
-}
-
-macro_rules! impl_fmt_trait {
-    ($trait:ident) => (
-        impl<T: fmt::$trait> fmt::$trait for Paint<T> {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                if paint_enabled() {
-                    self.write_prefix(f)?;
-                    fmt::$trait::fmt(&self.item, f)?;
-                    self.write_suffix(f)
-                } else if !self.masked {
-                    fmt::$trait::fmt(&self.item, f)
-                } else {
-                    Ok(())
-                }
-            }
-        }
-    )
-}
-
-impl_fmt_trait!(Display);
-impl_fmt_trait!(Debug);

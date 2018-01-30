@@ -64,7 +64,6 @@ fn colors_enabled() {
 }
 
 #[test]
-#[cfg(feature = "nightly")]
 fn colors_disabled() {
     assert_disabled_renders! {
         Paint::new("text/plain") => "text/plain",
@@ -102,7 +101,6 @@ fn colors_disabled() {
 }
 
 #[test]
-#[cfg(feature = "nightly")]
 fn masked_when_disabled() {
     assert_disabled_renders! {
         Paint::masked("text/plain") => "",

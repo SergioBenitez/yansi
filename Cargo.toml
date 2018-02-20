@@ -1,6 +1,6 @@
 [package]
 name = "yansi"
-version = "0.4.0-dev"
+version = "0.4.0-rc.1"
 authors = ["Sergio Benitez <sb@sergio.bz>"]
 repository = "https://github.com/SergioBenitez/yansi"
 documentation = "https://docs.rs/yansi"
@@ -13,4 +13,4 @@ categories = ["command-line-interface"]
 [dependencies]
 
 [dev-dependencies]
-parking_lot = { version = "0.4", features = ["nightly"] }
+parking_lot = { version = "0.5", features = ["nightly"] }

@@ -13,24 +13,23 @@ print!("{} light, {} light!", Paint::green("Green"), Paint::red("red").underline
 
 See the [documentation](https://docs.rs/yansi) for more.
 
-## Why?
+# Why?
 
-Several terminal coloring libraries already exist for Rust ([`ansi_term`],
-[`colored`], [`term_painter`], to name a few), begging the question: why yet
-another? Here are a few reasons for `yansi`:
+Several terminal coloring libraries exist ([`ansi_term`], [`colored`],
+[`term_painter`], to name a few), begging the question: why yet another? Here
+are a few reasons:
 
-  * This library is _much_ simpler: there are two types! The complete
-    implementation is only about 250 lines of code.
+  * This library is _much_ simpler: there are three types!
   * Like [`term_painter`], but unlike [`ansi_term`], _any_ type implementing
-    `Display` can be stylized, not only strings.
-  * Styling can be enabled and disabled on the fly.
+    `Display` or `Debug` can be stylized, not only strings.
+  * Styling can be enabled and disabled globally, on the fly.
   * Arbitrary items can be _masked_ for selective disabling.
-  * Typically, only one type needs to be imported: `Paint`.
+  * Typically only one type needs to be imported: `Paint`.
   * Zero dependencies. It really is simple.
   * The name `yansi` is pretty short.
 
-All that being said, this library borrows the general API of existing libraries
-as well as plenty of code from [`ansi_term`].
+All that being said, this library borrows API ideas from the three libraries as
+well as implementation details from [`ansi_term`].
 
 [`ansi_term`]: https://crates.io/crates/ansi_term
 [`colored`]: https://crates.io/crates/colored

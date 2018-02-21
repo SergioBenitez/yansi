@@ -118,15 +118,15 @@ fn masked_when_disabled() {
 fn masked_when_enabled() {
     assert_renders! {
         Paint::masked("text/plain") => "text/plain",
-        // Paint::masked("text/plain").mask() => "text/plain",
-        // Paint::black("hi").mask() => "\x1B[30mhi\x1B[0m",
-        // Paint::yellow("hi").bold().mask() => "\x1B[1;33mhi\x1B[0m",
-        // Paint::new("hi").fg(Yellow).bold().mask() => "\x1B[1;33mhi\x1B[0m",
-        // Paint::cyan("hi").underline().bg(White).mask() => "\x1B[4;47;36mhi\x1B[0m",
-        // Paint::cyan("hi").bold().underline().bg(White).mask() => "\x1B[1;4;47;36mhi\x1B[0m",
-        // Paint::rgb(70, 130, 180, "hi").mask() => "\x1B[38;2;70;130;180mhi\x1B[0m",
-        // Paint::new("hi").underline().mask() => "\x1B[4mhi\x1B[0m",
-        // Paint::new("hi").bold().underline().mask() => "\x1B[1;4mhi\x1B[0m",
-        // Paint::new("hi").hidden().mask() => "\x1B[8mhi\x1B[0m",
+        Paint::masked("text/plain").mask() => "text/plain",
+        Paint::black("hi").mask() => "\x1B[30mhi\x1B[0m",
+        Paint::yellow("hi").bold().mask() => "\x1B[1;33mhi\x1B[0m",
+        Paint::new("hi").fg(Yellow).bold().mask() => "\x1B[1;33mhi\x1B[0m",
+        Paint::cyan("hi").underline().bg(White).mask() => "\x1B[4;47;36mhi\x1B[0m",
+        Paint::cyan("hi").bold().underline().bg(White).mask() => "\x1B[1;4;47;36mhi\x1B[0m",
+        Paint::rgb(70, 130, 180, "hi").mask() => "\x1B[38;2;70;130;180mhi\x1B[0m",
+        Paint::new("hi").underline().mask() => "\x1B[4mhi\x1B[0m",
+        Paint::new("hi").bold().underline().mask() => "\x1B[1;4mhi\x1B[0m",
+        Paint::new("hi").hidden().mask() => "\x1B[8mhi\x1B[0m",
     }
 }

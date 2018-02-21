@@ -21,8 +21,8 @@ Several terminal coloring libraries exist ([`ansi_term`], [`colored`],
 are a few reasons:
 
   * This library is _much_ simpler: there are three types!
-  * Like [`term_painter`] but unlike [`ansi_term`], _any_ type implementing
-    `Display` or `Debug` can be stylized.
+  * Unlike [`ansi_term`] or [`colored`], _any_ type implementing `Display`
+    or `Debug` can be stylized, not only strings.
   * Styling can be enabled and disabled globally, on the fly.
   * Arbitrary items can be _masked_ for selective disabling.
   * Typically only one type needs to be imported: `Paint`.

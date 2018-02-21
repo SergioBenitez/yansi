@@ -15,7 +15,7 @@
 //!     Paint::blue("3").bg(Color::White).italic());
 //! ```
 //!
-//! ## `Paint`
+//! ## Paint
 //!
 //! The main entry point into this library is the [`Paint`] type. `Paint`
 //! encapsulates a value of any type that implements the [`Display`] or
@@ -97,8 +97,8 @@
 //! # } }
 //! ```
 //!
-//! [`Paint::disable()`]: struct.Paint.html#method.disable
-//! [`Paint::enable()`]: struct.Paint.html#method.disable
+//! [`Paint::disable()`]: Paint::disable()
+//! [`Paint::enable()`]: Paint::enable()
 //!
 //! ## Masking
 //!
@@ -155,7 +155,7 @@
 //! }
 //! ```
 //!
-//! [`Paint::enable_windows_ascii()`]: struct.Paint.html#method.enable_windows_ascii
+//! [`Paint::enable_windows_ascii()`]: Paint::enable_windows_ascii()
 //!
 //! # Why?
 //!
@@ -164,11 +164,11 @@
 //! Here are a few reasons:
 //!
 //!   * This library is _much_ simpler: there are three types!
-//!   * Like [`term_painter`], but unlike [`ansi_term`], _any_ type implementing
-//!     `Display` or `Debug` can be stylized, not only strings.
+//!   * Like [`term_painter`] but unlike [`ansi_term`], _any_ type implementing
+//!     `Display` or `Debug` can be stylized.
 //!   * Styling can be enabled and disabled globally, on the fly.
 //!   * Arbitrary items can be _masked_ for selective disabling.
-//!   * Typically only one type needs to be imported: `Paint`.
+//!   * Typically only one type needs to be imported: [`Paint`].
 //!   * Zero dependencies. It really is simple.
 //!   * The name `yansi` is pretty short.
 //!
@@ -186,6 +186,8 @@
 mod windows;
 mod paint;
 mod style;
+mod color;
 
-pub use style::{Style, Color};
+pub use color::Color;
+pub use style::Style;
 pub use paint::Paint;

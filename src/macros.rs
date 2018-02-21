@@ -1,5 +1,5 @@
 macro_rules! style_builder_for {
-    ($T:ty, $($name:ident: $property:ident),*) => ($(
+    ($T:ty, |$s:ident| $props:expr, $($name:ident: $property:ident),*) => ($(
     docify!([
         Enables the @[_$name]_ style on @{"`self`"}.
 
@@ -11,9 +11,10 @@ macro_rules! style_builder_for {
         @fence
     ];
         #[inline]
-        pub fn $name(mut self) -> $T {
-            self.properties().set(Properties::$property);
-            self
+        pub fn $name(self) -> $T {
+            let mut $s = self;
+            $props.set(Properties::$property);
+            $s
         }
     );)*)
 }

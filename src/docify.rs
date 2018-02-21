@@ -9,11 +9,11 @@ macro_rules! docify {
     };
 
     ([@fence @$lang:tt $($b:tt)*] [$($c:tt)+] $($tt:tt)*) => {
-        docify!([$($b)*] [$($c)+, "\n```", stringify!($lang), "\n"] $($tt)*);
+        docify!([$($b)*] [$($c)+, "\n\n```", stringify!($lang), "\n"] $($tt)*);
     };
 
     ([@fence $($b:tt)*] [$($c:tt)+] $($tt:tt)*) => {
-        docify!([$($b)*] [$($c)+, "\n```\n"] $($tt)*);
+        docify!([$($b)*] [$($c)+, "\n\n```\n"] $($tt)*);
     };
 
     ([@{$($a:tt),*} $($b:tt)*] [$($c:tt)+] $($tt:tt)*) => {

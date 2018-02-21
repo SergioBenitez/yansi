@@ -1,5 +1,7 @@
-use std::fmt::{self, Display};
-use style::{Style, Color, Properties};
+use std::fmt;
+
+use style::{Style, Properties};
+use color::Color;
 
 /// A structure encapsulating an item and styling.
 ///
@@ -76,20 +78,10 @@ pub struct Paint<T> {
     style: Style,
 }
 
-#[inline(always)]
-fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Formatter, t: T) -> fmt::Result {
-    if *c {
-        write!(f, ";{}", t)
-    } else {
-        *c = true;
-        write!(f, "{}", t)
-    }
-}
-
 macro_rules! constructors_for {
     ($T:ty, $($name:ident: $color:ident),*) => ($(
     docify!([
-        Constructs a new @{"`Paint` "} structure encapsulating @{"`item` "} with
+        Constructs a new @code{Paint} structure encapsulating @code{item} with
         the foreground color set to $name.
 
         @fence @rust
@@ -114,7 +106,7 @@ impl<T> Paint<T> {
     ///
     /// assert_eq!(Paint::new("hello!").to_string(), "hello!".to_string());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn new(item: T) -> Paint<T> {
         Paint { item, style: Style::default() }
     }
@@ -131,7 +123,7 @@ impl<T> Paint<T> {
     /// // The emoji won't be printed when coloring is disabled.
     /// println!("{}Sprout!", Paint::masked("🌱 "));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn masked(item: T) -> Paint<T> {
         Paint::new(item).mask()
     }
@@ -144,7 +136,7 @@ impl<T> Paint<T> {
     ///
     /// println!("This is going to be funky: {}", Paint::rgb(70, 130, 122, "hi!"));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn rgb(r: u8, g: u8, b: u8, item: T) -> Paint<T> {
         Paint::new(item).fg(Color::RGB(r, g, b))
     }
@@ -157,7 +149,7 @@ impl<T> Paint<T> {
     ///
     /// println!("This is going to be funky: {}", Paint::fixed(100, "hi!"));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn fixed(color: u8, item: T) -> Paint<T> {
         Paint::new(item).fg(Color::Fixed(color))
     }
@@ -175,7 +167,7 @@ impl<T> Paint<T> {
     ///
     /// assert_eq!(alert, painted.style());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn style(&self) -> Style {
         self.style
     }
@@ -197,7 +189,7 @@ impl<T> Paint<T> {
     /// // Using the `style.paint()` method.
     /// println!("Alert: {}", s.paint("This thing happened!"));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn with_style(mut self, style: Style) -> Paint<T> {
         self.style = style;
         self
@@ -215,7 +207,7 @@ impl<T> Paint<T> {
     /// // "Whoops! " will only print when coloring is enabled.
     /// println!("{}Something happened.", Paint::red("Whoops! ").mask());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn mask(mut self) -> Paint<T> {
         self.style.masked = true;
         self
@@ -229,7 +221,7 @@ impl<T> Paint<T> {
     ///
     /// println!("Red foreground: {}", Paint::new("hi!").fg(Red));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn fg(mut self, color: Color) -> Paint<T> {
         self.style.foreground = color;
         self
@@ -243,61 +235,16 @@ impl<T> Paint<T> {
     ///
     /// println!("Yellow background: {}", Paint::new("hi!").bg(Yellow));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn bg(mut self, color: Color) -> Paint<T> {
         self.style.background = color;
         self
     }
 
-    fn properties(&mut self) -> &mut Properties { &mut self.style.properties }
-    style_builder_for!(Paint<T>, bold: BOLD, dimmed: DIMMED, italic: ITALIC,
+    style_builder_for!(Paint<T>, |paint| paint.style.properties,
+                       bold: BOLD, dimmed: DIMMED, italic: ITALIC,
                        underline: UNDERLINE, blink: BLINK, invert: INVERT,
                        hidden: HIDDEN, strikethrough: STRIKETHROUGH);
-
-    #[inline]
-    fn is_plain(&self) -> bool {
-        self.style == Style::default()
-    }
-
-    /// Write any ANSI codes that go *before* a piece of text. These should be
-    /// the codes to set the terminal to a different colour or font style.
-    fn write_prefix(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // A user may just want a code-free string when no styles are applied.
-        if self.is_plain() {
-            return Ok(());
-        }
-
-        let mut splice = false;
-        write!(f, "\x1B[")?;
-
-        for i in self.style.properties.iter() {
-            let k = if i >= 5 { i + 2 } else { i + 1 };
-            write_spliced(&mut splice, f, k)?;
-        }
-
-        if self.style.background != Color::Unset {
-            write_spliced(&mut splice, f, "4")?;
-            self.style.background.fmt(f)?;
-        }
-
-        if self.style.foreground != Color::Unset {
-            write_spliced(&mut splice, f, "3")?;
-            self.style.foreground.fmt(f)?;
-        }
-
-        // All the codes end with an `m`, because reasons.
-        write!(f, "m")
-    }
-
-    /// Write any ANSI codes that go *after* a piece of text. These should be
-    /// the codes to *reset* the terminal back to its normal colour and style.
-    fn write_suffix(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.is_plain() {
-            return Ok(());
-        }
-
-        write!(f, "\x1B[0m")
-    }
 }
 
 macro_rules! impl_fmt_trait {
@@ -305,9 +252,9 @@ macro_rules! impl_fmt_trait {
         impl<T: fmt::$trait> fmt::$trait for Paint<T> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 if Paint::is_enabled() {
-                    self.write_prefix(f)?;
+                    self.style.fmt_prefix(f)?;
                     fmt::$trait::fmt(&self.item, f)?;
-                    self.write_suffix(f)
+                    self.style.fmt_suffix(f)
                 } else if !self.style.masked {
                     fmt::$trait::fmt(&self.item, f)
                 } else {
@@ -409,7 +356,7 @@ impl Paint<()> {
     /// // A best-effort Windows ASCII terminal support enabling.
     /// Paint::enable_windows_ascii();
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn enable_windows_ascii() -> bool {
         ::windows::enable_ascii_colors()
     }

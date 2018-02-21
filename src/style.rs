@@ -1,97 +1,7 @@
-use std::fmt;
+use std::fmt::{self, Display};
 use std::ops::BitOr;
 
-use Paint;
-
-/// An enum representing an ANSI color code.
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
-pub enum Color {
-    /// No color has been set. Nothing is changed when applied.
-    Unset,
-
-    /// Black #0 (foreground code `30`, background code `40`).
-    Black,
-
-    /// Red: #1 (foreground code `31`, background code `41`).
-    Red,
-
-    /// Green: #2 (foreground code `32`, background code `42`).
-    Green,
-
-    /// Yellow: #3 (foreground code `33`, background code `43`).
-    Yellow,
-
-    /// Blue: #4 (foreground code `34`, background code `44`).
-    Blue,
-
-    /// Purple: #5 (foreground code `35`, background code `45`).
-    Purple,
-
-    /// Cyan: #6 (foreground code `36`, background code `46`).
-    Cyan,
-
-    /// White: #7 (foreground code `37`, background code `47`).
-    White,
-
-    /// A color number from 0 to 255, for use in 256-color terminals.
-    Fixed(u8),
-
-    /// A 24-bit RGB color, as specified by ISO-8613-3.
-    RGB(u8, u8, u8),
-}
-
-impl Color {
-    /// Constructs a new `Paint` structure that encapsulates `item` with the
-    /// foreground color set to the color `self`.
-    ///
-    /// ```rust
-    /// use yansi::Color::Blue;
-    ///
-    /// println!("This is going to be blue: {}", Blue.paint("yay!"));
-    /// ```
-    #[inline(always)]
-    pub fn paint<T>(self, item: T) -> Paint<T> {
-        Paint::new(item).fg(self)
-    }
-
-    /// Constructs a new `Style` structure with the foreground color set to the
-    /// color `self`.
-    ///
-    /// ```rust
-    /// use yansi::Color::Green;
-    ///
-    /// let success = Green.style().bold();
-    /// println!("Hey! {}", success.paint("Success!"));
-    /// ```
-    #[inline(always)]
-    pub fn style(self) -> Style {
-        Style::new().fg(self)
-    }
-}
-
-#[doc(hidden)]
-impl fmt::Display for Color {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Color::Unset => Ok(()),
-            Color::Black => write!(f, "0"),
-            Color::Red => write!(f, "1"),
-            Color::Green => write!(f, "2"),
-            Color::Yellow => write!(f, "3"),
-            Color::Blue => write!(f, "4"),
-            Color::Purple => write!(f, "5"),
-            Color::Cyan => write!(f, "6"),
-            Color::White => write!(f, "7"),
-            Color::Fixed(num) => write!(f, "8;5;{}", num),
-            Color::RGB(r, g, b) => write!(f, "8;2;{};{};{}", r, g, b)
-        }
-    }
-}
-
-impl Default for Color {
-    #[inline(always)]
-    fn default() -> Self { Color::Unset }
-}
+use {Paint, Color};
 
 #[derive(Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct Properties(u8);
@@ -139,6 +49,7 @@ pub struct Iter {
 impl Iterator for Iter {
     type Item = usize;
 
+    #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         while self.index < 8 {
             let index = self.index;
@@ -186,6 +97,8 @@ impl Iterator for Iter {
 ///
 /// Return information about a `Style` structure.
 ///
+///   * [`style.fg_color()`](Style::fg_color())
+///   * [`style.bg_color()`](Style::bg_color())
 ///   * [`style.is_masked()`](Style::is_masked())
 ///   * [`style.is_bold()`](Style::is_bold())
 ///   * [`style.is_dimmed()`](Style::is_dimmed())
@@ -225,6 +138,13 @@ impl Iterator for Iter {
 /// Convert a `Style` into another structure.
 ///
 ///   * [`style.paint<T>(item: T) -> Paint<T>`](Style::paint())
+///
+/// ### Raw Formatters
+///
+/// Write the raw ANSI codes for a given `Style` to a `fmt::Formatter`.
+///
+///   * [`style.fmt_prefix(f: &mut fmt::Formatter)`](Style::fmt_prefix())
+///   * [`style.fmt_suffix(f: &mut fmt::Formatter)`](Style::fmt_suffix())
 #[repr(packed)]
 #[derive(Default, Debug, Eq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct Style {
@@ -285,6 +205,16 @@ macro_rules! checker_for {
     );)*)
 }
 
+#[inline(always)]
+fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Formatter, t: T) -> fmt::Result {
+    if *c {
+        write!(f, ";{}", t)
+    } else {
+        *c = true;
+        write!(f, "{}", t)
+    }
+}
+
 impl Style {
     /// Default, unstylized `Style`. This is identical to `Style::default()`.
     ///
@@ -294,7 +224,7 @@ impl Style {
     /// let plain = Style::new();
     /// assert_eq!(plain, Style::default());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn new() -> Style {
         Self::default()
     }
@@ -312,13 +242,45 @@ impl Style {
     /// let plain = Style::masked();
     /// assert_eq!(plain, Style::default());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn masked() -> Style {
         Self::default().mask()
     }
 
     constructors_for!(black: Black, red: Red, green: Green, yellow: Yellow,
                          blue: Blue, purple: Purple, cyan: Cyan, white: White);
+
+    /// Returns the foreground color of `self`.
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color};
+    ///
+    /// let plain = Style::new();
+    /// assert_eq!(plain.fg_color(), Color::Unset);
+    ///
+    /// let red = plain.fg(Color::Red);
+    /// assert_eq!(red.fg_color(), Color::Red);
+    /// ```
+    #[inline]
+    pub fn fg_color(&self) -> Color {
+        self.foreground
+    }
+
+    /// Returns the foreground color of `self`.
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color};
+    ///
+    /// let plain = Style::new();
+    /// assert_eq!(plain.bg_color(), Color::Unset);
+    ///
+    /// let white = plain.bg(Color::White);
+    /// assert_eq!(white.bg_color(), Color::White);
+    /// ```
+    #[inline]
+    pub fn bg_color(&self) -> Color {
+        self.background
+    }
 
     /// Returns `true` if `self` is masked.
     ///
@@ -331,7 +293,7 @@ impl Style {
     /// let masked = plain.mask();
     /// assert!(masked.is_masked());
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn is_masked(&self) -> bool {
         self.masked
     }
@@ -349,7 +311,7 @@ impl Style {
     ///
     /// let red_fg = Style::new().fg(Color::Red);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn fg(mut self, color: Color) -> Style {
         self.foreground = color;
         self
@@ -362,7 +324,7 @@ impl Style {
     ///
     /// let red_bg = Style::new().bg(Color::Red);
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn bg(mut self, color: Color) -> Style {
         self.background = color;
         self
@@ -382,16 +344,16 @@ impl Style {
     /// // "Whoops! " will only print when coloring is enabled.
     /// println!("{}Something happened.", masked.paint("Whoops! "));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn mask(mut self) -> Style {
         self.masked = true;
         self
     }
 
-    fn properties(&mut self) -> &mut Properties { &mut self.properties }
-    style_builder_for!(Style, bold: BOLD, dimmed: DIMMED, italic: ITALIC,
-                          underline: UNDERLINE, blink: BLINK, invert: INVERT,
-                          hidden: HIDDEN, strikethrough: STRIKETHROUGH);
+    style_builder_for!(Style, |style| style.properties,
+                       bold: BOLD, dimmed: DIMMED, italic: ITALIC,
+                       underline: UNDERLINE, blink: BLINK, invert: INVERT,
+                       hidden: HIDDEN, strikethrough: STRIKETHROUGH);
 
     /// Constructs a new `Paint` structure that encapsulates `item` with the
     /// style set to `self`.
@@ -402,8 +364,107 @@ impl Style {
     /// let alert = Style::red().bold().underline();
     /// println!("Alert: {}", alert.paint("This thing happened!"));
     /// ```
-    #[inline(always)]
+    #[inline]
     pub fn paint<T>(self, item: T) -> Paint<T> {
         Paint::new(item).with_style(self)
+    }
+
+    #[inline(always)]
+    fn is_plain(&self) -> bool {
+        self == &Style::default()
+    }
+
+    /// Writes the ANSI code prefix for the currently set styles.
+    ///
+    /// This method is intended to be used inside of [`fmt::Display`] and
+    /// [`fmt::Debug`] implementations for custom or specialized use-cases. Most
+    /// users should use [`Paint`] for all painting needs.
+    ///
+    /// [`fmt::Display`]: fmt::Display
+    /// [`fmt::Debug`]: fmt::Debug
+    /// [`Paint`]: Paint
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use std::fmt;
+    /// use yansi::Style;
+    ///
+    /// struct CustomItem {
+    ///     item: u32,
+    ///     style: Style
+    /// }
+    ///
+    /// impl fmt::Display for CustomItem {
+    ///     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    ///         self.style.fmt_prefix(f)?;
+    ///         write!(f, "number: {}", self.item)?;
+    ///         self.style.fmt_suffix(f)
+    ///     }
+    /// }
+    /// ```
+    pub fn fmt_prefix(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // A user may just want a code-free string when no styles are applied.
+        if self.is_plain() {
+            return Ok(());
+        }
+
+        let mut splice = false;
+        write!(f, "\x1B[")?;
+
+        for i in self.properties.iter() {
+            let k = if i >= 5 { i + 2 } else { i + 1 };
+            write_spliced(&mut splice, f, k)?;
+        }
+
+        if self.background != Color::Unset {
+            write_spliced(&mut splice, f, "4")?;
+            self.background.ascii_fmt(f)?;
+        }
+
+        if self.foreground != Color::Unset {
+            write_spliced(&mut splice, f, "3")?;
+            self.foreground.ascii_fmt(f)?;
+        }
+
+        // All the codes end with an `m`.
+        write!(f, "m")
+    }
+
+    /// Writes the ANSI code suffix for the currently set styles.
+    ///
+    /// This method is intended to be used inside of [`fmt::Display`] and
+    /// [`fmt::Debug`] implementations for custom or specialized use-cases. Most
+    /// users should use [`Paint`] for all painting needs.
+    ///
+    /// [`fmt::Display`]: fmt::Display
+    /// [`fmt::Debug`]: fmt::Debug
+    /// [`Paint`]: Paint
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use std::fmt;
+    /// use yansi::Style;
+    ///
+    /// struct CustomItem {
+    ///     item: u32,
+    ///     style: Style
+    /// }
+    ///
+    /// impl fmt::Display for CustomItem {
+    ///     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    ///         self.style.fmt_prefix(f)?;
+    ///         write!(f, "number: {}", self.item)?;
+    ///         self.style.fmt_suffix(f)
+    ///     }
+    /// }
+    /// ```
+    pub fn fmt_suffix(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.is_plain() {
+            return Ok(());
+        }
+
+        write!(f, "\x1B[0m")
     }
 }

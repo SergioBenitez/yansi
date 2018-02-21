@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/SergioBenitez/yansi.svg?branch=master)](https://travis-ci.org/SergioBenitez/yansi)
 [![Current Crates.io Version](https://img.shields.io/crates/v/yansi.svg)](https://crates.io/crates/yansi)
-[![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi)
+[![Documentation](https://docs.rs/yansi/badge.svg)](https://sergio.bz/rustdocs/yansi/)
+<!-- [![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi) -->
 
 A dead simple ANSI terminal color painting library for Rust.
 
@@ -12,7 +13,7 @@ use yansi::Paint;
 print!("{} light, {} light!", Paint::green("Green"), Paint::red("red").underline());
 ```
 
-See the [documentation](https://docs.rs/yansi) for more.
+See the [documentation](https://sergio.bz/rustdocs/yansi/) for more.
 
 # Why?
 

@@ -380,9 +380,14 @@ impl Style {
     /// [`fmt::Debug`] implementations for custom or specialized use-cases. Most
     /// users should use [`Paint`] for all painting needs.
     ///
+    /// This method writes the ANSI code prefix irrespective of whether painting
+    /// is currently enabled or disabled. To write the prefix only if painting
+    /// is enabled, condition a call to this method on [`Paint::is_enabled()`].
+    ///
     /// [`fmt::Display`]: fmt::Display
     /// [`fmt::Debug`]: fmt::Debug
     /// [`Paint`]: Paint
+    /// [`Paint::is_enabled()`]: Paint::is_enabled()
     ///
     /// # Example
     ///
@@ -437,9 +442,14 @@ impl Style {
     /// [`fmt::Debug`] implementations for custom or specialized use-cases. Most
     /// users should use [`Paint`] for all painting needs.
     ///
+    /// This method writes the ANSI code suffix irrespective of whether painting
+    /// is currently enabled or disabled. To write the suffix only if painting
+    /// is enabled, condition a call to this method on [`Paint::is_enabled()`].
+    ///
     /// [`fmt::Display`]: fmt::Display
     /// [`fmt::Debug`]: fmt::Debug
     /// [`Paint`]: Paint
+    /// [`Paint::is_enabled()`]: Paint::is_enabled()
     ///
     /// # Example
     ///

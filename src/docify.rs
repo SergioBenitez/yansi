@@ -61,5 +61,3 @@ macro_rules! docify {
         $($tt)*
     };
 }
-
-

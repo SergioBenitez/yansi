@@ -1,7 +1,7 @@
 macro_rules! style_builder_for {
     ($T:ty, |$s:ident| $props:expr, $($name:ident: $property:ident),*) => ($(
     docify!([
-        Enables the @[_$name]_ style on @{"`self`"}.
+        Enables the @[_$name]_ style on @code{self}.
 
         @fence @rust
         use yansi::Paint; @nl @nl

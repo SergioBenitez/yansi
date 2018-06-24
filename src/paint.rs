@@ -336,7 +336,7 @@ impl Paint<()> {
     /// assert!(Paint::is_enabled());
     /// ```
     pub fn is_enabled() -> bool {
-        ENABLED.load(Ordering::Relaxed)
+        ENABLED.load(Ordering::Acquire)
     }
 
     /// Enables ASCII terminal escape sequences on Windows consoles when

@@ -90,7 +90,7 @@ impl Iterator for Iter {
 ///   * [`Style::green()`](Style::green())
 ///   * [`Style::yellow()`](Style::yellow())
 ///   * [`Style::blue()`](Style::blue())
-///   * [`Style::purple()`](Style::purple())
+///   * [`Style::magenta()`](Style::magenta())
 ///   * [`Style::cyan()`](Style::cyan())
 ///   * [`Style::white()`](Style::white())
 ///
@@ -257,7 +257,7 @@ impl Style {
     }
 
     constructors_for!(black: Black, red: Red, green: Green, yellow: Yellow,
-                         blue: Blue, purple: Purple, cyan: Cyan, white: White);
+                         blue: Blue, magenta: Magenta, cyan: Cyan, white: White);
 
     /// Returns the foreground color of `self`.
     ///

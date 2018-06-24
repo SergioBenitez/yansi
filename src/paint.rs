@@ -29,7 +29,7 @@ use color::Color;
 ///   * [`Paint::green(item: T)`](Paint::green())
 ///   * [`Paint::yellow(item: T)`](Paint::yellow())
 ///   * [`Paint::blue(item: T)`](Paint::blue())
-///   * [`Paint::purple(item: T)`](Paint::purple())
+///   * [`Paint::magenta(item: T)`](Paint::magenta())
 ///   * [`Paint::cyan(item: T)`](Paint::cyan())
 ///   * [`Paint::white(item: T)`](Paint::white())
 ///
@@ -155,7 +155,7 @@ impl<T> Paint<T> {
     }
 
     constructors_for!(T, black: Black, red: Red, green: Green, yellow: Yellow,
-                         blue: Blue, purple: Purple, cyan: Cyan, white: White);
+                         blue: Blue, magenta: Magenta, cyan: Cyan, white: White);
 
     /// Retrieves the style currently set on `self`.
     ///

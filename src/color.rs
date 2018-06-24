@@ -23,8 +23,8 @@ pub enum Color {
     /// Blue: #4 (foreground code `34`, background code `44`).
     Blue,
 
-    /// Purple: #5 (foreground code `35`, background code `45`).
-    Purple,
+    /// Magenta: #5 (foreground code `35`, background code `45`).
+    Magenta,
 
     /// Cyan: #6 (foreground code `36`, background code `46`).
     Cyan,
@@ -76,7 +76,7 @@ impl Color {
             Color::Green => write!(f, "2"),
             Color::Yellow => write!(f, "3"),
             Color::Blue => write!(f, "4"),
-            Color::Purple => write!(f, "5"),
+            Color::Magenta => write!(f, "5"),
             Color::Cyan => write!(f, "6"),
             Color::White => write!(f, "7"),
             Color::Fixed(num) => write!(f, "8;5;{}", num),

@@ -1,3 +1,4 @@
+use std::hash::{Hash, Hasher};
 use std::fmt::{self, Display};
 use std::ops::BitOr;
 
@@ -146,7 +147,7 @@ impl Iterator for Iter {
 ///   * [`style.fmt_prefix(f: &mut fmt::Formatter)`](Style::fmt_prefix())
 ///   * [`style.fmt_suffix(f: &mut fmt::Formatter)`](Style::fmt_suffix())
 #[repr(packed)]
-#[derive(Default, Debug, Eq, Ord, PartialOrd, Hash, Copy, Clone)]
+#[derive(Default, Debug, Eq, Ord, PartialOrd, Copy, Clone)]
 pub struct Style {
     pub(crate) foreground: Color,
     pub(crate) background: Color,
@@ -159,6 +160,14 @@ impl PartialEq for Style {
         self.foreground == other.foreground
             && self.background == other.background
             && self.properties == other.properties
+    }
+}
+
+impl Hash for Style {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.foreground.hash(state);
+        self.background.hash(state);
+        self.properties.hash(state);
     }
 }
 

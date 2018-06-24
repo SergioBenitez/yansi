@@ -50,7 +50,6 @@ pub struct Iter {
 impl Iterator for Iter {
     type Item = usize;
 
-    #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         while self.index < 8 {
             let index = self.index;
@@ -214,7 +213,7 @@ macro_rules! checker_for {
     );)*)
 }
 
-#[inline(always)]
+#[inline]
 fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Formatter, t: T) -> fmt::Result {
     if *c {
         write!(f, ";{}", t)

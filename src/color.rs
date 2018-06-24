@@ -67,7 +67,6 @@ impl Color {
         Style::new().fg(self)
     }
 
-    #[inline(always)]
     pub(crate) fn ascii_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Color::Unset => Ok(()),

@@ -1,7 +1,7 @@
 extern crate parking_lot;
 
 use super::Color::*;
-use super::Paint;
+use super::{Paint, Style};
 
 use self::parking_lot::Mutex;
 
@@ -129,4 +129,22 @@ fn masked_when_enabled() {
         Paint::new("hi").bold().underline().mask() => "\x1B[1;4mhi\x1B[0m",
         Paint::new("hi").hidden().mask() => "\x1B[8mhi\x1B[0m",
     }
+}
+
+#[test]
+fn hash_eq() {
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
+    fn hash<T: Hash>(t: &T) -> u64 {
+        let mut s = DefaultHasher::new();
+        t.hash(&mut s);
+        s.finish()
+    }
+
+    let a = Style::new();
+    let b = Style::masked();
+
+    assert_eq!(a, b);
+    assert_eq!(hash(&a), hash(&b));
 }

@@ -13,7 +13,7 @@ macro_rules! style_builder_for {
         #[inline]
         pub fn $name(self) -> $T {
             let mut $s = self;
-            $props.set(Properties::$property);
+            $props.set(Property::$property);
             $s
         }
     );)*)

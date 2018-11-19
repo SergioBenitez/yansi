@@ -21,7 +21,7 @@ macro_rules! docify {
     };
 
     ([@code{$($a:tt)+} $($b:tt)*] [$($c:tt)+] $($tt:tt)*) => {
-        docify!([$($b)*] [$($c)+, "`", $(stringify!($a)),*, "`"] $($tt)*);
+        docify!([$($b)*] [$($c)+, "`", $(stringify!($a)),*, "`", " "] $($tt)*);
     };
 
     ([@[$($a:tt)*] $($b:tt)*] [$($c:tt)+] $($tt:tt)*) => {

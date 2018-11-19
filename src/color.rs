@@ -8,6 +8,9 @@ pub enum Color {
     /// No color has been set. Nothing is changed when applied.
     Unset,
 
+    /// Terminal default #9. (foreground code `39`, background code `49`).
+    Default,
+
     /// Black #0 (foreground code `30`, background code `40`).
     Black,
 
@@ -64,12 +67,13 @@ impl Color {
     /// ```
     #[inline]
     pub fn style(self) -> Style {
-        Style::new().fg(self)
+        Style::new(self)
     }
 
-    pub(crate) fn ascii_fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    pub(crate) fn ascii_fmt(&self, f: &mut fmt::Write) -> fmt::Result {
         match *self {
             Color::Unset => Ok(()),
+            Color::Default => write!(f, "9"),
             Color::Black => write!(f, "0"),
             Color::Red => write!(f, "1"),
             Color::Green => write!(f, "2"),
@@ -79,7 +83,7 @@ impl Color {
             Color::Cyan => write!(f, "6"),
             Color::White => write!(f, "7"),
             Color::Fixed(num) => write!(f, "8;5;{}", num),
-            Color::RGB(r, g, b) => write!(f, "8;2;{};{};{}", r, g, b)
+            Color::RGB(r, g, b) => write!(f, "8;2;{};{};{}", r, g, b),
         }
     }
 }

@@ -10,7 +10,13 @@ static LOCK: Mutex<()> = Mutex::new(());
 macro_rules! assert_renders {
     ($($input:expr => $expected:expr,)*) => {
         let _lock = LOCK.lock();
-        $(assert_eq!($input.to_string(), $expected.to_string());)*
+        $(
+            let (input, expected) = ($input.to_string(), $expected.to_string());
+            if input != expected {
+                panic!("expected {:?}, got {:?} from {:?} ({:?})",
+                       expected, input, $input.inner(), $input.style())
+            }
+        )*
     };
 }
 
@@ -87,6 +93,7 @@ fn colors_disabled() {
         Paint::rgb(70, 130, 180, "hi") => "hi",
         Paint::rgb(70, 130, 180, "hi").bg(Blue) => "hi",
         Paint::blue("hi").bg(RGB(70, 130, 180)) => "hi",
+        Paint::blue("hi").bg(RGB(70, 130, 180)).wrap() => "hi",
         Paint::rgb(70, 130, 180, "hi").bg(RGB(5,10,15)) => "hi",
         Paint::new("hi").bold() => "hi",
         Paint::new("hi").underline() => "hi",
@@ -97,6 +104,7 @@ fn colors_disabled() {
         Paint::new("hi").invert() => "hi",
         Paint::new("hi").hidden() => "hi",
         Paint::new("hi").strikethrough() => "hi",
+        Paint::new("hi").strikethrough().wrap() => "hi",
     }
 }
 
@@ -105,6 +113,7 @@ fn masked_when_disabled() {
     assert_disabled_renders! {
         Paint::masked("text/plain") => "",
         Paint::masked("text/plain").mask() => "",
+        Paint::new("text/plain").mask() => "",
         Paint::new("text/plain").mask() => "",
         Paint::red("hi").mask() => "",
         Paint::black("hi").mask() => "",
@@ -132,6 +141,28 @@ fn masked_when_enabled() {
 }
 
 #[test]
+fn wrapping() {
+    let inner = || format!("{} b {}", Paint::red("a"), Paint::green("c"));
+    let inner2 = || format!("0 {} 1", Paint::magenta(&inner()).wrap());
+    assert_renders! {
+        Paint::new("text/plain").wrap() => "text/plain",
+        Paint::new(&inner()).wrap() => &inner(),
+        Paint::new(&inner()).wrap() =>
+            "\u{1b}[31ma\u{1b}[0m b \u{1b}[32mc\u{1b}[0m",
+        Paint::new(&inner()).fg(Blue).wrap() =>
+            "\u{1b}[34m\u{1b}[31ma\u{1b}[0m\u{1b}[34m b \
+            \u{1b}[32mc\u{1b}[0m\u{1b}[34m\u{1b}[0m",
+        Paint::new(&inner2()).wrap() => &inner2(),
+        Paint::new(&inner2()).wrap() =>
+            "0 \u{1b}[35m\u{1b}[31ma\u{1b}[0m\u{1b}[35m b \
+            \u{1b}[32mc\u{1b}[0m\u{1b}[35m\u{1b}[0m 1",
+        Paint::new(&inner2()).fg(Blue).wrap() =>
+            "\u{1b}[34m0 \u{1b}[35m\u{1b}[31ma\u{1b}[0m\u{1b}[34m\u{1b}[35m b \
+            \u{1b}[32mc\u{1b}[0m\u{1b}[34m\u{1b}[35m\u{1b}[0m\u{1b}[34m 1\u{1b}[0m",
+    }
+}
+
+#[test]
 fn hash_eq() {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
@@ -142,8 +173,8 @@ fn hash_eq() {
         s.finish()
     }
 
-    let a = Style::new();
-    let b = Style::masked();
+    let a = Style::default();
+    let b = Style::default().mask();
 
     assert_eq!(a, b);
     assert_eq!(hash(&a), hash(&b));

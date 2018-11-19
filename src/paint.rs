@@ -1,6 +1,6 @@
 use std::fmt;
 
-use style::{Style, Properties};
+use style::{Style, Property};
 use color::Color;
 
 /// A structure encapsulating an item and styling.
@@ -13,10 +13,12 @@ use color::Color;
 ///
 /// ### Unstyled Constructors
 ///
-/// Return a new `Paint` structure with no styling applied.
+/// Return a new `Paint` structure with no or default styling applied.
 ///
 ///   * [`Paint::new(item: T)`](Paint::new())
+///   * [`Paint::default(item: T)`](Paint::default())
 ///   * [`Paint::masked(item: T)`](Paint::masked())
+///   * [`Paint::wrapping(item: T)`](Paint::wrapping())
 ///
 /// ### Foreground Color Constructors
 ///
@@ -38,6 +40,7 @@ use color::Color;
 /// Return information about the `Paint` structure.
 ///
 ///   * [`paint.style()`](Paint::style())
+///   * [`paint.inner()`](Paint::inner())
 ///
 /// ### Setters
 ///
@@ -45,6 +48,7 @@ use color::Color;
 ///
 ///   * [`paint.with_style(style: Style)`](Paint::with_style())
 ///   * [`paint.mask()`](Paint::mask())
+///   * [`paint.wrap()`](Paint::wrap())
 ///   * [`paint.fg(color: Color)`](Paint::fg())
 ///   * [`paint.bg(color: Color)`](Paint::bg())
 ///   * [`paint.bold()`](Paint::bold())
@@ -99,7 +103,8 @@ macro_rules! constructors_for {
 }
 
 impl<T> Paint<T> {
-    /// Constructs a new `Paint` structure encapsulating `item` with no styling.
+    /// Constructs a new `Paint` structure encapsulating `item` with no set
+    /// styling.
     ///
     /// ```rust
     /// use yansi::Paint;
@@ -111,7 +116,21 @@ impl<T> Paint<T> {
         Paint { item, style: Style::default() }
     }
 
-    /// Constructs a new _masked_ `Paint` structure encapsulating `item`.
+    /// Constructs a new `Paint` structure encapsulating `item` with the active
+    /// terminal's default foreground and background.
+    ///
+    /// ```rust
+    /// use yansi::Paint;
+    ///
+    /// println!("This is going to use {}!", Paint::default("default colors"));
+    /// ```
+    #[inline]
+    pub fn default(item: T) -> Paint<T> {
+        Paint::new(item).fg(Color::Default).bg(Color::Default)
+    }
+
+    /// Constructs a new _masked_ `Paint` structure encapsulating `item` with
+    /// no set styling.
     ///
     /// A masked `Paint` is not written out when painting is disabled during
     /// `Display` or `Debug` invocations. When painting is enabled, masking has
@@ -126,6 +145,36 @@ impl<T> Paint<T> {
     #[inline]
     pub fn masked(item: T) -> Paint<T> {
         Paint::new(item).mask()
+    }
+
+    /// Constructs a new _wrapping_ `Paint` structure encapsulating `item` with
+    /// default styling.
+    ///
+    /// A wrapping `Paint` converts all color resets written out by the internal
+    /// value to the styling of itself. This allows for seamless color wrapping
+    /// of other colored text.
+    ///
+    /// # Performance
+    ///
+    /// In order to wrap an internal value, the internal value must first be
+    /// written out to a local buffer and examined. As a result, displaying a
+    /// wrapped value is likely to result in a heap allocation and copy.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::{Paint, Color};
+    ///
+    /// let inner = format!("{} and {}", Paint::red("Stop"), Paint::green("Go"));
+    ///
+    /// // 'Hey!' will be unstyled, "Stop" will be red, "and" will be blue, and
+    /// // "Go" will be green. Without a wrapping `Paint`, "and" would be
+    /// // unstyled.
+    /// println!("Hey! {}", Paint::wrapping(inner).fg(Color::Blue));
+    /// ```
+    #[inline]
+    pub fn wrapping(item: T) -> Paint<T> {
+        Paint::new(item).wrap()
     }
 
     /// Constructs a new `Paint` structure encapsulating `item` with the
@@ -155,14 +204,14 @@ impl<T> Paint<T> {
     }
 
     constructors_for!(T, black: Black, red: Red, green: Green, yellow: Yellow,
-                         blue: Blue, magenta: Magenta, cyan: Cyan, white: White);
+        blue: Blue, magenta: Magenta, cyan: Cyan, white: White);
 
     /// Retrieves the style currently set on `self`.
     ///
     /// ```rust
-    /// use yansi::{Style, Paint};
+    /// use yansi::{Style, Color, Paint};
     ///
-    /// let alert = Style::red().bold().underline();
+    /// let alert = Style::new(Color::Red).bold().underline();
     /// let painted = Paint::red("hi").bold().underline();
     ///
     /// assert_eq!(alert, painted.style());
@@ -172,6 +221,19 @@ impl<T> Paint<T> {
         self.style
     }
 
+    /// Retrieves a borrow to the inner item.
+    ///
+    /// ```rust
+    /// use yansi::Paint;
+    ///
+    /// let x = Paint::red("Hello, world!");
+    /// assert_eq!(*x.inner(), "Hello, world!");
+    /// ```
+    #[inline]
+    pub fn inner(&self) -> &T {
+        &self.item
+    }
+
     /// Sets the style of `self` to `style`.
     ///
     /// Any styling currently set on `self` is lost. Prefer to use the
@@ -179,9 +241,9 @@ impl<T> Paint<T> {
     /// `Style`.
     ///
     /// ```rust
-    /// use yansi::{Paint, Style};
+    /// use yansi::{Paint, Color, Style};
     ///
-    /// let s = Style::red().bold().underline();
+    /// let s = Style::new(Color::Red).bold().underline();
     ///
     /// // Using this method.
     /// println!("Alert: {}", Paint::new("This thing happened!").with_style(s));
@@ -210,6 +272,36 @@ impl<T> Paint<T> {
     #[inline]
     pub fn mask(mut self) -> Paint<T> {
         self.style.masked = true;
+        self
+    }
+
+    /// Makes `self` a _wrapping_ `Paint`.
+    ///
+    /// A wrapping `Paint` converts all color resets written out by the internal
+    /// value to the styling of itself. This allows for seamless color wrapping
+    /// of other colored text.
+    ///
+    /// # Performance
+    ///
+    /// In order to wrap an internal value, the internal value must first be
+    /// written out to a local buffer and examined. As a result, displaying a
+    /// wrapped value is likely to result in a heap allocation and copy.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::{Paint, Color};
+    ///
+    /// let inner = format!("{} and {}", Paint::red("Stop"), Paint::green("Go"));
+    ///
+    /// // 'Hey!' will be unstyled, "Stop" will be red, "and" will be blue, and
+    /// // "Go" will be green. Without a wrapping `Paint`, "and" would be
+    /// // unstyled.
+    /// println!("Hey! {}", Paint::blue(inner).wrap());
+    /// ```
+    #[inline]
+    pub fn wrap(mut self) -> Paint<T> {
+        self.style.wrap = true;
         self
     }
 
@@ -248,10 +340,19 @@ impl<T> Paint<T> {
 }
 
 macro_rules! impl_fmt_trait {
-    ($trait:ident) => (
+    ($trait:ident, $fmt:expr) => (
         impl<T: fmt::$trait> fmt::$trait for Paint<T> {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                if Paint::is_enabled() {
+                if Paint::is_enabled() && self.style.wrap {
+                    let mut prefix = String::new();
+                    prefix.push_str("\x1B[0m");
+                    self.style.fmt_prefix(&mut prefix)?;
+
+                    self.style.fmt_prefix(f)?;
+                    let item = format!($fmt, self.item).replace("\x1B[0m", &prefix);
+                    fmt::$trait::fmt(&item, f)?;
+                    self.style.fmt_suffix(f)
+                } else if Paint::is_enabled() {
                     self.style.fmt_prefix(f)?;
                     fmt::$trait::fmt(&self.item, f)?;
                     self.style.fmt_suffix(f)
@@ -265,8 +366,8 @@ macro_rules! impl_fmt_trait {
     )
 }
 
-impl_fmt_trait!(Display);
-impl_fmt_trait!(Debug);
+impl_fmt_trait!(Display, "{}");
+impl_fmt_trait!(Debug, "{:?}");
 
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;

@@ -24,9 +24,9 @@
 //! implementation.
 //!
 //! `Paint` can be constructed via [a myriad of methods]. In addition to these
-//! constructors, you can also use the [`paint`](Color::paint()) method on a
-//! given [`Color`] value to construct a `Paint` type. Both of these approaches
-//! are shown below:
+//! constructors, you can also use the [`color.paint()`](Color::paint()) method
+//! on a given [`Color`] value to construct a `Paint` type. Both of these
+//! approaches are shown below:
 //!
 //! ```rust
 //! use yansi::Paint;
@@ -35,11 +35,9 @@
 //! println!("I'm {}!", Paint::red("red").bold());
 //! println!("I'm also {}!", Red.paint("red").bold());
 //! ```
-//! [`Paint`]: Paint
 //! [`Display`]: ::std::fmt::Display
 //! [`Debug`]: ::std::fmt::Debug
 //! [a myriad of methods]: struct.Paint.html#unstyled-constructors
-//! [`Color`]: Color
 //!
 //! ## Styling
 //!
@@ -58,10 +56,10 @@
 //! [`paint.with_style()`] method:
 //!
 //! ```rust
-//! use yansi::{Paint, Style};
+//! use yansi::{Paint, Color, Style};
 //!
 //! // A bold, itatlic style with red foreground.
-//! let alert = Style::red().bold().italic();
+//! let alert = Style::new(Color::Red).bold().italic();
 //!
 //! // Using `style.paint()`; this is preferred.
 //! println!("Alert! {}", alert.paint("This is serious business!"));
@@ -72,7 +70,6 @@
 //! ```
 //!
 //! [a number of chainable methods]: struct.Paint.html#setters
-//! [`Style`]: Style
 //! [`style.paint()`]: Style::paint()
 //! [`paint.with_style()`]: Paint::with_style()
 //!
@@ -97,9 +94,6 @@
 //! # } }
 //! ```
 //!
-//! [`Paint::disable()`]: Paint::disable()
-//! [`Paint::enable()`]: Paint::enable()
-//!
 //! ## Masking
 //!
 //! Items can be arbitrarily _masked_. When an item is masked and painting is
@@ -109,9 +103,7 @@
 //! [`Style::masked()`]constructors or [`paint.mask()`] and [`style.mask()`]
 //! style setters.
 //!
-//! [`Paint::masked()`]: Paint::masked()
 //! [`paint.mask()`]: Paint::mask()
-//! [`Style::masked()`]: Style::masked()
 //! [`style.mask()`]: Style::mask()
 //!
 //! One use for this feature is to print certain characters only when painting
@@ -128,6 +120,35 @@
 //! This will print "I like colors! 🎨" when painting is enabled and "I like
 //! colors!" when painting is disabled.
 //!
+//! ## Wrapping
+//!
+//! Styling can be set to _wrap_ existing styles using either the
+//! [`Paint::wrapping()`] constructor or the [`paint.wrap()`] and
+//! [`style.wrap()`] style setters. When a style is _wrapping_, all color
+//! resets written out by the internal item's `Display` or `Debug`
+//! implementation are set to the styling of the wrapping style itself. In other
+//! words, the "default" style of the wrapped item is modified to be the
+//! wrapping style. This allows for easy wrapping of other colored text. Without
+//! this feature, the console would reset styling to the terminal's default
+//! style instead of the wrapping style.
+//!
+//! [`paint.wrap()`]: Paint::wrap()
+//! [`style.wrap()`]: Style::wrap()
+//!
+//! One use for this feature is to ensure that styling is consistently set
+//! across items that may already be styled, such as when logging.
+//!
+//! ```rust
+//! use yansi::{Paint, Color};
+//!
+//! let inner = format!("{} and {}", Paint::red("Stop"), Paint::green("Go"));
+//! println!("Hey! {}", Paint::wrapping(inner).fg(Color::Blue));
+//! ```
+//!
+//! This will print 'Hey!' unstyled, "Stop" in red, "and" in blue, and "Go" in
+//! green. Without wrapping, "and" would be unstyled as `Paint::red()` resets
+//! the style after printing the internal item.
+//!
 //! # Windows
 //!
 //! Coloring is supported on Windows beginning with the Windows 10 anniversary
@@ -142,7 +163,6 @@
 //! // Enable ASCII escape sequence support on Windows consoles.
 //! Paint::enable_windows_ascii();
 //! ```
-//!
 //!
 //! You may wish to disable coloring on unsupported Windows consoles to avoid
 //! emitting unrecognized ASCII escape sequences:
@@ -167,7 +187,8 @@
 //!   * Unlike [`ansi_term`] or [`colored`], _any_ type implementing `Display`
 //!     or `Debug` can be stylized, not only strings.
 //!   * Styling can be enabled and disabled globally, on the fly.
-//!   * Arbitrary items can be _masked_ for selective disabling.
+//!   * Arbitrary items can be [_masked_] for selective disabling.
+//!   * Styling can [_wrap_] any arbitrarily styled item.
 //!   * Typically only one type needs to be imported: [`Paint`].
 //!   * Zero dependencies. It really is simple.
 //!   * The name `yansi` is pretty short.
@@ -178,6 +199,8 @@
 //! [`ansi_term`]: https://crates.io/crates/ansi_term
 //! [`colored`]: https://crates.io/crates/colored
 //! [`term_painter`]: https://crates.io/crates/term-painter
+//! [_masked_]: #masking
+//! [_wrap_]: #wrapping
 
 #[macro_use] mod docify;
 #[macro_use] mod macros;

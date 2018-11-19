@@ -5,25 +5,25 @@ use std::ops::BitOr;
 use {Paint, Color};
 
 #[derive(Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
-pub struct Properties(u8);
+pub struct Property(u8);
 
-impl Properties {
-    pub const BOLD: Self = Properties(1 << 0);
-    pub const DIMMED: Self = Properties(1 << 1);
-    pub const ITALIC: Self = Properties(1 << 2);
-    pub const UNDERLINE: Self = Properties(1 << 3);
-    pub const BLINK: Self = Properties(1 << 4);
-    pub const INVERT: Self = Properties(1 << 5);
-    pub const HIDDEN: Self = Properties(1 << 6);
-    pub const STRIKETHROUGH: Self = Properties(1 << 7);
+impl Property {
+    pub const BOLD: Self = Property(1 << 0);
+    pub const DIMMED: Self = Property(1 << 1);
+    pub const ITALIC: Self = Property(1 << 2);
+    pub const UNDERLINE: Self = Property(1 << 3);
+    pub const BLINK: Self = Property(1 << 4);
+    pub const INVERT: Self = Property(1 << 5);
+    pub const HIDDEN: Self = Property(1 << 6);
+    pub const STRIKETHROUGH: Self = Property(1 << 7);
 
     #[inline(always)]
-    pub fn contains(self, other: Properties) -> bool {
+    pub fn contains(self, other: Property) -> bool {
         (other.0 & self.0) == other.0
     }
 
     #[inline(always)]
-    pub fn set(&mut self, other: Properties) {
+    pub fn set(&mut self, other: Property) {
         self.0 |= other.0;
     }
 
@@ -33,18 +33,18 @@ impl Properties {
     }
 }
 
-impl BitOr for Properties {
+impl BitOr for Property {
     type Output = Self;
 
     #[inline(always)]
     fn bitor(self, rhs: Self) -> Self {
-        Properties(self.0 | rhs.0)
+        Property(self.0 | rhs.0)
     }
 }
 
 pub struct Iter {
     index: u8,
-    properties: Properties,
+    properties: Property,
 }
 
 impl Iterator for Iter {
@@ -55,7 +55,7 @@ impl Iterator for Iter {
             let index = self.index;
             self.index += 1;
 
-            if self.properties.contains(Properties(1 << index)) {
+            if self.properties.contains(Property(1 << index)) {
                 return Some(index as usize);
             }
         }
@@ -73,41 +73,11 @@ impl Iterator for Iter {
 /// The `Style` structure exposes many methods for convenience. The majority of
 /// these methods are shared with [`Paint`](Paint).
 ///
-/// ### Unstyled Constructors
-///
-/// Return a new `Style` structure with no styling applied.
-///
-///   * [`Style::new()`](Style::new())
-///   * [`Style::masked()`](Style::masked())
-///
 /// ### Foreground Color Constructors
 ///
-/// Return a new `Style` structure with a foreground color applied.
+/// Return a new `Style` structure with a foreground `color` applied.
 ///
-///   * [`Style::black()`](Style::black())
-///   * [`Style::red()`](Style::red())
-///   * [`Style::green()`](Style::green())
-///   * [`Style::yellow()`](Style::yellow())
-///   * [`Style::blue()`](Style::blue())
-///   * [`Style::magenta()`](Style::magenta())
-///   * [`Style::cyan()`](Style::cyan())
-///   * [`Style::white()`](Style::white())
-///
-/// ### Getters
-///
-/// Return information about a `Style` structure.
-///
-///   * [`style.fg_color()`](Style::fg_color())
-///   * [`style.bg_color()`](Style::bg_color())
-///   * [`style.is_masked()`](Style::is_masked())
-///   * [`style.is_bold()`](Style::is_bold())
-///   * [`style.is_dimmed()`](Style::is_dimmed())
-///   * [`style.is_italic()`](Style::is_italic())
-///   * [`style.is_underline()`](Style::is_underline())
-///   * [`style.is_blink()`](Style::is_blink())
-///   * [`style.is_invert()`](Style::is_invert())
-///   * [`style.is_hidden()`](Style::is_hidden())
-///   * [`style.is_strikethrough()`](Style::is_strikethrough())
+///   * [`Style::new(color: Color)`](Style::new())
 ///
 /// ### Setters
 ///
@@ -116,6 +86,7 @@ impl Iterator for Iter {
 ///   * [`style.fg(color: Color)`](Style::fg())
 ///   * [`style.bg(color: Color)`](Style::bg())
 ///   * [`style.mask()`](Style::mask())
+///   * [`style.wrap()`](Style::wrap())
 ///   * [`style.bold()`](Style::bold())
 ///   * [`style.dimmed()`](Style::dimmed())
 ///   * [`style.italic()`](Style::italic())
@@ -128,9 +99,9 @@ impl Iterator for Iter {
 /// These methods can be chained:
 ///
 /// ```rust
-/// use yansi::Style;
+/// use yansi::{Style, Color::{Red, Magenta}};
 ///
-/// Style::red().underline().invert().italic().dimmed().bold();
+/// Style::new(Red).bg(Magenta).underline().invert().italic().dimmed().bold();
 /// ```
 ///
 /// ### Converters
@@ -139,19 +110,37 @@ impl Iterator for Iter {
 ///
 ///   * [`style.paint<T>(item: T) -> Paint<T>`](Style::paint())
 ///
+/// ### Getters
+///
+/// Return information about a `Style` structure.
+///
+///   * [`style.fg_color()`](Style::fg_color())
+///   * [`style.bg_color()`](Style::bg_color())
+///   * [`style.is_masked()`](Style::is_masked())
+///   * [`style.is_wrapping()`](Style::is_wrapping())
+///   * [`style.is_bold()`](Style::is_bold())
+///   * [`style.is_dimmed()`](Style::is_dimmed())
+///   * [`style.is_italic()`](Style::is_italic())
+///   * [`style.is_underline()`](Style::is_underline())
+///   * [`style.is_blink()`](Style::is_blink())
+///   * [`style.is_invert()`](Style::is_invert())
+///   * [`style.is_hidden()`](Style::is_hidden())
+///   * [`style.is_strikethrough()`](Style::is_strikethrough())
+///
 /// ### Raw Formatters
 ///
-/// Write the raw ANSI codes for a given `Style` to a `fmt::Formatter`.
+/// Write the raw ANSI codes for a given `Style` to any `fmt::Write`.
 ///
-///   * [`style.fmt_prefix(f: &mut fmt::Formatter)`](Style::fmt_prefix())
-///   * [`style.fmt_suffix(f: &mut fmt::Formatter)`](Style::fmt_suffix())
+///   * [`style.fmt_prefix(f: &mut fmt::Write)`](Style::fmt_prefix())
+///   * [`style.fmt_suffix(f: &mut fmt::Write)`](Style::fmt_suffix())
 #[repr(packed)]
 #[derive(Default, Debug, Eq, Ord, PartialOrd, Copy, Clone)]
 pub struct Style {
     pub(crate) foreground: Color,
     pub(crate) background: Color,
-    pub(crate) properties: Properties,
+    pub(crate) properties: Property,
     pub(crate) masked: bool,
+    pub(crate) wrap: bool,
 }
 
 impl PartialEq for Style {
@@ -170,27 +159,6 @@ impl Hash for Style {
     }
 }
 
-macro_rules! constructors_for {
-    ($($name:ident: $color:ident),*) => ($(
-    docify!([
-        Constructs a new @code{Style} structure with the foreground color set to
-        $name.
-
-        @fence @rust
-        use yansi::Style; @nl @nl
-
-        let $name = @{"Style::"} @[$name] @{"();"} @nl
-        @{r#"println!("This is going to be "#} @[$name] @{r#": {}", "#}
-            @[$name] @{r#".paint("yay!"));"#}
-        @fence
-    ];
-        #[inline]
-        pub fn $name() -> Style {
-            Style::new().fg(Color::$color)
-        }
-    );)*)
-}
-
 macro_rules! checker_for {
     ($($name:ident ($fn_name:ident): $property:ident),*) => ($(
     docify!([
@@ -199,7 +167,7 @@ macro_rules! checker_for {
         @fence @rust
         use yansi::Style; @nl @nl
 
-        let plain = @{"Style::new();"} @nl
+        let plain = @{"Style::default();"} @nl
         @{"assert!(!"} @[plain.$fn_name] @{"());"} @nl @nl
 
         let styled = @[plain.$name] @{"()"}; @nl
@@ -208,13 +176,13 @@ macro_rules! checker_for {
     ];
         #[inline]
         pub fn $fn_name(&self) -> bool {
-            self.properties.contains(Properties::$property)
+            self.properties.contains(Property::$property)
         }
     );)*)
 }
 
 #[inline]
-fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Formatter, t: T) -> fmt::Result {
+fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Write, t: T) -> fmt::Result {
     if *c {
         write!(f, ";{}", t)
     } else {
@@ -224,100 +192,26 @@ fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Formatter, t: T) -> fmt:
 }
 
 impl Style {
-    /// Default, unstylized `Style`. This is identical to `Style::default()`.
+    /// Default style with the foreground set to `color` and no other set
+    /// properties.
     ///
     /// ```rust
     /// use yansi::Style;
     ///
-    /// let plain = Style::new();
+    /// let plain = Style::default();
     /// assert_eq!(plain, Style::default());
     /// ```
     #[inline]
-    pub fn new() -> Style {
-        Self::default()
+    pub fn new(color: Color) -> Style {
+        Self::default().fg(color)
     }
-
-    /// Default, unstylized but _masked_ `Style`. Aside from masking, this is
-    /// identical to `Style::default()`.
-    ///
-    /// An item with _masked_ styling is not written out when painting is
-    /// disabled during `Display` or `Debug` invocations. When painting is
-    /// enabled, masking has no effect.
-    ///
-    /// ```rust
-    /// use yansi::Style;
-    ///
-    /// let plain = Style::masked();
-    /// assert_eq!(plain, Style::default());
-    /// ```
-    #[inline]
-    pub fn masked() -> Style {
-        Self::default().mask()
-    }
-
-    constructors_for!(black: Black, red: Red, green: Green, yellow: Yellow,
-                         blue: Blue, magenta: Magenta, cyan: Cyan, white: White);
-
-    /// Returns the foreground color of `self`.
-    ///
-    /// ```rust
-    /// use yansi::{Style, Color};
-    ///
-    /// let plain = Style::new();
-    /// assert_eq!(plain.fg_color(), Color::Unset);
-    ///
-    /// let red = plain.fg(Color::Red);
-    /// assert_eq!(red.fg_color(), Color::Red);
-    /// ```
-    #[inline]
-    pub fn fg_color(&self) -> Color {
-        self.foreground
-    }
-
-    /// Returns the foreground color of `self`.
-    ///
-    /// ```rust
-    /// use yansi::{Style, Color};
-    ///
-    /// let plain = Style::new();
-    /// assert_eq!(plain.bg_color(), Color::Unset);
-    ///
-    /// let white = plain.bg(Color::White);
-    /// assert_eq!(white.bg_color(), Color::White);
-    /// ```
-    #[inline]
-    pub fn bg_color(&self) -> Color {
-        self.background
-    }
-
-    /// Returns `true` if `self` is masked.
-    ///
-    /// ```rust
-    /// use yansi::Style;
-    ///
-    /// let plain = Style::new();
-    /// assert!(!plain.is_masked());
-    ///
-    /// let masked = plain.mask();
-    /// assert!(masked.is_masked());
-    /// ```
-    #[inline]
-    pub fn is_masked(&self) -> bool {
-        self.masked
-    }
-
-    checker_for!(bold (is_bold): BOLD, dimmed (is_dimmed): DIMMED,
-                    italic (is_italic): ITALIC, underline (is_underline): UNDERLINE,
-                    blink (is_blink): BLINK, invert (is_invert): INVERT,
-                    hidden (is_hidden): HIDDEN,
-                    strikethrough (is_strikethrough): STRIKETHROUGH);
 
     /// Sets the foreground to `color`.
     ///
     /// ```rust
     /// use yansi::{Color, Style};
     ///
-    /// let red_fg = Style::new().fg(Color::Red);
+    /// let red_fg = Style::default().fg(Color::Red);
     /// ```
     #[inline]
     pub fn fg(mut self, color: Color) -> Style {
@@ -330,7 +224,7 @@ impl Style {
     /// ```rust
     /// use yansi::{Color, Style};
     ///
-    /// let red_bg = Style::new().bg(Color::Red);
+    /// let red_bg = Style::default().bg(Color::Red);
     /// ```
     #[inline]
     pub fn bg(mut self, color: Color) -> Style {
@@ -347,7 +241,7 @@ impl Style {
     /// ```rust
     /// use yansi::Style;
     ///
-    /// let masked = Style::new().mask();
+    /// let masked = Style::default().mask();
     ///
     /// // "Whoops! " will only print when coloring is enabled.
     /// println!("{}Something happened.", masked.paint("Whoops! "));
@@ -355,6 +249,35 @@ impl Style {
     #[inline]
     pub fn mask(mut self) -> Style {
         self.masked = true;
+        self
+    }
+
+    /// Sets `self` to be wrapping.
+    ///
+    /// A wrapping `Style` converts all color resets written out by the internal
+    /// value to the styling of itself. This allows for seamless color wrapping
+    /// of other colored text.
+    ///
+    /// # Performance
+    ///
+    /// In order to wrap an internal value, the internal value must first be
+    /// written out to a local buffer and examined. As a result, displaying a
+    /// wrapped value is likely to result in a heap allocation and copy.
+    ///
+    /// ```rust
+    /// use yansi::{Paint, Style, Color};
+    ///
+    /// let inner = format!("{} and {}", Paint::red("Stop"), Paint::green("Go"));
+    /// let wrapping = Style::new(Color::Blue).wrap();
+    ///
+    /// // 'Hey!' will be unstyled, "Stop" will be red, "and" will be blue, and
+    /// // "Go" will be green. Without a wrapping `Paint`, "and" would be
+    /// // unstyled.
+    /// println!("Hey! {}", wrapping.paint(inner));
+    /// ```
+    #[inline]
+    pub fn wrap(mut self) -> Style {
+        self.wrap = true;
         self
     }
 
@@ -369,13 +292,83 @@ impl Style {
     /// ```rust
     /// use yansi::{Style, Color};
     ///
-    /// let alert = Style::red().bold().underline();
+    /// let alert = Style::new(Color::Red).bold().underline();
     /// println!("Alert: {}", alert.paint("This thing happened!"));
     /// ```
     #[inline]
     pub fn paint<T>(self, item: T) -> Paint<T> {
         Paint::new(item).with_style(self)
     }
+
+    /// Returns the foreground color of `self`.
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color};
+    ///
+    /// let plain = Style::default();
+    /// assert_eq!(plain.fg_color(), Color::Unset);
+    ///
+    /// let red = plain.fg(Color::Red);
+    /// assert_eq!(red.fg_color(), Color::Red);
+    /// ```
+    #[inline]
+    pub fn fg_color(&self) -> Color {
+        self.foreground
+    }
+
+    /// Returns the foreground color of `self`.
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color};
+    ///
+    /// let plain = Style::default();
+    /// assert_eq!(plain.bg_color(), Color::Unset);
+    ///
+    /// let white = plain.bg(Color::White);
+    /// assert_eq!(white.bg_color(), Color::White);
+    /// ```
+    #[inline]
+    pub fn bg_color(&self) -> Color {
+        self.background
+    }
+
+    /// Returns `true` if `self` is masked.
+    ///
+    /// ```rust
+    /// use yansi::Style;
+    ///
+    /// let plain = Style::default();
+    /// assert!(!plain.is_masked());
+    ///
+    /// let masked = plain.mask();
+    /// assert!(masked.is_masked());
+    /// ```
+    #[inline]
+    pub fn is_masked(&self) -> bool {
+        self.masked
+    }
+
+    /// Returns `true` if `self` is wrapping.
+    ///
+    /// ```rust
+    /// use yansi::Style;
+    ///
+    /// let plain = Style::default();
+    /// assert!(!plain.is_wrapping());
+    ///
+    /// let wrapping = plain.wrap();
+    /// assert!(wrapping.is_wrapping());
+    /// ```
+    #[inline]
+    pub fn is_wrapping(&self) -> bool {
+        self.wrap
+    }
+
+    checker_for!(bold (is_bold): BOLD, dimmed (is_dimmed): DIMMED,
+        italic (is_italic): ITALIC, underline (is_underline): UNDERLINE,
+        blink (is_blink): BLINK, invert (is_invert): INVERT,
+        hidden (is_hidden): HIDDEN,
+        strikethrough (is_strikethrough): STRIKETHROUGH);
 
     #[inline(always)]
     fn is_plain(&self) -> bool {
@@ -416,7 +409,7 @@ impl Style {
     ///     }
     /// }
     /// ```
-    pub fn fmt_prefix(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    pub fn fmt_prefix(&self, f: &mut fmt::Write) -> fmt::Result {
         // A user may just want a code-free string when no styles are applied.
         if self.is_plain() {
             return Ok(());
@@ -478,7 +471,7 @@ impl Style {
     ///     }
     /// }
     /// ```
-    pub fn fmt_suffix(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    pub fn fmt_suffix(&self, f: &mut fmt::Write) -> fmt::Result {
         if self.is_plain() {
             return Ok(());
         }

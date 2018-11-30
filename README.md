@@ -2,8 +2,7 @@
 
 [![Build Status](https://travis-ci.org/SergioBenitez/yansi.svg?branch=master)](https://travis-ci.org/SergioBenitez/yansi)
 [![Current Crates.io Version](https://img.shields.io/crates/v/yansi.svg)](https://crates.io/crates/yansi)
-[![Documentation](https://docs.rs/yansi/badge.svg)](https://sergio.bz/rustdocs/yansi/)
-<!-- [![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi) -->
+[![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi)
 
 A dead simple ANSI terminal color painting library for Rust.
 
@@ -25,7 +24,8 @@ are a few reasons:
   * Unlike [`ansi_term`] or [`colored`], _any_ type implementing `Display`
     or `Debug` can be stylized, not only strings.
   * Styling can be enabled and disabled globally, on the fly.
-  * Arbitrary items can be _masked_ for selective disabling.
+  * Arbitrary items can be [_masked_] for selective disabling.
+  * Styling can [_wrap_] any arbitrarily styled item.
   * Typically only one type needs to be imported: `Paint`.
   * Zero dependencies. It really is simple.
   * The name `yansi` is pretty short.
@@ -36,6 +36,8 @@ well as implementation details from [`ansi_term`].
 [`ansi_term`]: https://crates.io/crates/ansi_term
 [`colored`]: https://crates.io/crates/colored
 [`term_painter`]: https://crates.io/crates/term-painter
+[_masked_]: https:/docs.rs/yansi/#masking
+[_wrap_]: https:/docs.rs/yansi/#wrapping
 
 ## License
 

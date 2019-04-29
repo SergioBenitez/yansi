@@ -43,7 +43,7 @@ mod windows_console {
         }
     }
 
-    unsafe fn enable_ascii_colors_raw() -> Result<bool, ()> {
+    unsafe fn enable_ansi_colors_raw() -> Result<bool, ()> {
         let stdout_handle = get_handle(STD_OUTPUT_HANDLE)?;
         let stderr_handle = get_handle(STD_ERROR_HANDLE)?;
 
@@ -56,14 +56,14 @@ mod windows_console {
     }
 
     #[inline]
-    pub fn enable_ascii_colors() -> bool {
-        unsafe { enable_ascii_colors_raw().unwrap_or(false) }
+    pub fn enable_ansi_colors() -> bool {
+        unsafe { enable_ansi_colors_raw().unwrap_or(false) }
     }
 }
 
 #[cfg(not(windows))]
 mod windows_console {
-    pub fn enable_ascii_colors() -> bool { true }
+    pub fn enable_ansi_colors() -> bool { true }
 }
 
-pub use self::windows_console::enable_ascii_colors;
+pub use self::windows_console::enable_ansi_colors;

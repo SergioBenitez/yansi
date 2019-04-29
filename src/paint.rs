@@ -75,7 +75,7 @@ use color::Color;
 ///   * [`Paint::enable()`](Paint::enable())
 ///   * [`Paint::disable()`](Paint::disable())
 ///   * [`Paint::is_enabled()`](Paint::is_enabled())
-///   * [`Paint::enable_windows_ascii()`](Paint::enable_windows_ascii())
+///   * [`Paint::enable_windows_ansi()`](Paint::enable_windows_ansi())
 #[derive(Default, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct Paint<T> {
     item: T,
@@ -440,7 +440,7 @@ impl Paint<()> {
         ENABLED.load(Ordering::Acquire)
     }
 
-    /// Enables ASCII terminal escape sequences on Windows consoles when
+    /// Enables ANSI terminal escape sequences on Windows consoles when
     /// possible. Returns `true` if escape sequence support was successfully
     /// enabled and `false` otherwise. On non-Windows targets, this method
     /// always returns `true`.
@@ -454,11 +454,11 @@ impl Paint<()> {
     /// ```rust
     /// use yansi::Paint;
     ///
-    /// // A best-effort Windows ASCII terminal support enabling.
-    /// Paint::enable_windows_ascii();
+    /// // A best-effort Windows ANSI terminal support enabling.
+    /// Paint::enable_windows_ansi();
     /// ```
     #[inline]
-    pub fn enable_windows_ascii() -> bool {
-        ::windows::enable_ascii_colors()
+    pub fn enable_windows_ansi() -> bool {
+        ::windows::enable_ansi_colors()
     }
 }

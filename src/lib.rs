@@ -154,28 +154,28 @@
 //! Coloring is supported on Windows beginning with the Windows 10 anniversary
 //! update. Since this update, Windows consoles support ANSI escape sequences.
 //! This support, however, must be explicitly enabled. `yansi` provides the
-//! [`Paint::enable_windows_ascii()`] method to enable ASCII support on Windows
+//! [`Paint::enable_windows_ansi()`] method to enable ANSI support on Windows
 //! consoles when available.
 //!
 //! ```rust
 //! use yansi::Paint;
 //!
-//! // Enable ASCII escape sequence support on Windows consoles.
-//! Paint::enable_windows_ascii();
+//! // Enable ANSI escape sequence support on Windows consoles.
+//! Paint::enable_windows_ansi();
 //! ```
 //!
 //! You may wish to disable coloring on unsupported Windows consoles to avoid
-//! emitting unrecognized ASCII escape sequences:
+//! emitting unrecognized ANSI escape sequences:
 //!
 //! ```rust
 //! use yansi::Paint;
 //!
-//! if cfg!(windows) && !Paint::enable_windows_ascii() {
+//! if cfg!(windows) && !Paint::enable_windows_ansi() {
 //!     Paint::disable();
 //! }
 //! ```
 //!
-//! [`Paint::enable_windows_ascii()`]: Paint::enable_windows_ascii()
+//! [`Paint::enable_windows_ansi()`]: Paint::enable_windows_ansi()
 //!
 //! # Why?
 //!

@@ -36,8 +36,8 @@ well as implementation details from [`ansi_term`].
 [`ansi_term`]: https://crates.io/crates/ansi_term
 [`colored`]: https://crates.io/crates/colored
 [`term_painter`]: https://crates.io/crates/term-painter
-[_masked_]: https:/docs.rs/yansi/#masking
-[_wrap_]: https:/docs.rs/yansi/#wrapping
+[_masked_]: https://docs.rs/yansi/#masking
+[_wrap_]: https://docs.rs/yansi/#wrapping
 
 ## License
 

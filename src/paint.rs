@@ -191,7 +191,7 @@ impl<T> Paint<T> {
     }
 
     /// Constructs a new `Paint` structure encapsulating `item` with the
-    /// foreground color set to the fixed 256-bit color `color`.
+    /// foreground color set to the fixed 8-bit color `color`.
     ///
     /// ```rust
     /// use yansi::Paint;

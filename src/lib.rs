@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://sergio.bz/rustdocs/yansi")]
+#![doc(html_root_url = "https://docs.rs/yansi/0.6.0-dev")]
 
 //! A dead simple ANSI terminal color painting library.
 //!

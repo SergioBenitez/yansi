@@ -12,7 +12,7 @@ use yansi::Paint;
 print!("{} light, {} light!", Paint::green("Green"), Paint::red("red").underline());
 ```
 
-See the [documentation](https://sergio.bz/rustdocs/yansi/) for more.
+See the [documentation](https://docs.rs/yansi/) for more.
 
 # Why?
 

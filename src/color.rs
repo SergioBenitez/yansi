@@ -121,10 +121,10 @@ impl Color {
 
     pub(crate) fn ansi_fmt(&self, f: &mut fmt::Write, is_background: bool) -> fmt::Result {
         match (is_background, self.is_bright()) {
-            (true, true) => write!(f, "4"),
-            (false, true) => write!(f, "3"),
-            (true, false) => write!(f, "10"),
-            (false, false) => write!(f, "9"),
+            (true, true) => write!(f, "10"),
+            (false, true) => write!(f, "9"),
+            (true, false) => write!(f, "4"),
+            (false, false) => write!(f, "3"),
         }?;
         match *self {
             Color::Unset => Ok(()),

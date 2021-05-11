@@ -1,8 +1,8 @@
+use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::fmt::{self, Display};
 use std::ops::BitOr;
 
-use {Paint, Color};
+use {Color, Paint};
 
 #[derive(Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct Property(u8);
@@ -179,16 +179,6 @@ macro_rules! checker_for {
             self.properties.contains(Property::$property)
         }
     );)*)
-}
-
-#[inline]
-fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Write, t: T) -> fmt::Result {
-    if *c {
-        write!(f, ";{}", t)
-    } else {
-        *c = true;
-        write!(f, "{}", t)
-    }
 }
 
 impl Style {
@@ -415,21 +405,33 @@ impl Style {
             return Ok(());
         }
 
-        let mut splice = false;
+        let mut first = true;
         write!(f, "\x1B[")?;
+
+        macro_rules! separator {
+            () => {{
+                #![allow(unused_assignments)]
+                if first {
+                    first = false;
+                } else {
+                    write!(f, ";")?;
+                }
+            }};
+        }
 
         for i in self.properties.iter() {
             let k = if i >= 5 { i + 2 } else { i + 1 };
-            write_spliced(&mut splice, f, k)?;
+            separator!();
+            write!(f, "{}", k)?;
         }
 
         if self.background != Color::Unset {
-            write_spliced(&mut splice, f, "")?;
+            separator!();
             self.background.ansi_fmt(f, true)?;
         }
 
         if self.foreground != Color::Unset {
-            write_spliced(&mut splice, f, "")?;
+            separator!();
             self.foreground.ansi_fmt(f, false)?;
         }
 

@@ -3,9 +3,7 @@ extern crate parking_lot;
 use super::Color::*;
 use super::{Paint, Style};
 
-use self::parking_lot::Mutex;
-
-static LOCK: Mutex<()> = Mutex::new(());
+static LOCK: parking_lot::Mutex<()> = parking_lot::const_mutex(());
 
 macro_rules! assert_renders {
     ($($input:expr => $expected:expr,)*) => {

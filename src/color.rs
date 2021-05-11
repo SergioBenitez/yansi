@@ -66,7 +66,7 @@ impl Color {
     /// println!("Hey! {}", success.paint("Success!"));
     /// ```
     #[inline]
-    pub fn style(self) -> Style {
+    pub const fn style(self) -> Style {
         Style::new(self)
     }
 

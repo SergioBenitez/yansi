@@ -200,10 +200,10 @@ impl Style {
     /// properties.
     ///
     /// ```rust
-    /// use yansi::Style;
+    /// use yansi::{Color, Style};
     ///
-    /// let plain = Style::default();
-    /// assert_eq!(plain, Style::default());
+    /// let red_fg = Style::new(Color::Red);
+    /// assert_eq!(red_fg, Style::default().fg(Color::Red));
     /// ```
     #[inline]
     pub fn new(color: Color) -> Style {

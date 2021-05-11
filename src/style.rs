@@ -424,13 +424,13 @@ impl Style {
         }
 
         if self.background != Color::Unset {
-            write_spliced(&mut splice, f, "4")?;
-            self.background.ansi_fmt(f)?;
+            write_spliced(&mut splice, f, "")?;
+            self.background.ansi_fmt(f, true)?;
         }
 
         if self.foreground != Color::Unset {
-            write_spliced(&mut splice, f, "3")?;
-            self.foreground.ansi_fmt(f)?;
+            write_spliced(&mut splice, f, "")?;
+            self.foreground.ansi_fmt(f, false)?;
         }
 
         // All the codes end with an `m`.

@@ -35,6 +35,30 @@ pub enum Color {
     /// White: #7 (foreground code `37`, background code `47`).
     White,
 
+    /// Bright black #0 (foreground code `90`, background code `100`).
+    BrightBlack,
+
+    /// Bright red: #1 (foreground code `91`, background code `101`).
+    BrightRed,
+
+    /// Bright green: #2 (foreground code `92`, background code `102`).
+    BrightGreen,
+
+    /// Bright yellow: #3 (foreground code `93`, background code `103`).
+    BrightYellow,
+
+    /// Bright blue: #4 (foreground code `94`, background code `104`).
+    BrightBlue,
+
+    /// Bright magenta: #5 (foreground code `95`, background code `105`).
+    BrightMagenta,
+
+    /// Bright cyan: #6 (foreground code `96`, background code `106`).
+    BrightCyan,
+
+    /// Bright white: #7 (foreground code `97`, background code `107`).
+    BrightWhite,
+
     /// A color number from 0 to 255, for use in 256-color terminals.
     Fixed(u8),
 
@@ -70,18 +94,49 @@ impl Color {
         Style::new(self)
     }
 
-    pub(crate) fn ansi_fmt(&self, f: &mut fmt::Write) -> fmt::Result {
+    fn is_bright(&self) -> bool {
+        match *self {
+            Color::Unset => false,
+            Color::Default => false,
+            Color::Black => false,
+            Color::Red => false,
+            Color::Green => false,
+            Color::Yellow => false,
+            Color::Blue => false,
+            Color::Magenta => false,
+            Color::Cyan => false,
+            Color::White => false,
+            Color::BrightBlack => true,
+            Color::BrightRed => true,
+            Color::BrightGreen => true,
+            Color::BrightYellow => true,
+            Color::BrightBlue => true,
+            Color::BrightMagenta => true,
+            Color::BrightCyan => true,
+            Color::BrightWhite => true,
+            Color::Fixed(_) => false,
+            Color::RGB(_, _, _) => false,
+        }
+    }
+
+    pub(crate) fn ansi_fmt(&self, f: &mut fmt::Write, is_background: bool) -> fmt::Result {
+        match (is_background, self.is_bright()) {
+            (true, true) => write!(f, "4"),
+            (false, true) => write!(f, "3"),
+            (true, false) => write!(f, "10"),
+            (false, false) => write!(f, "9"),
+        }?;
         match *self {
             Color::Unset => Ok(()),
             Color::Default => write!(f, "9"),
-            Color::Black => write!(f, "0"),
-            Color::Red => write!(f, "1"),
-            Color::Green => write!(f, "2"),
-            Color::Yellow => write!(f, "3"),
-            Color::Blue => write!(f, "4"),
-            Color::Magenta => write!(f, "5"),
-            Color::Cyan => write!(f, "6"),
-            Color::White => write!(f, "7"),
+            Color::Black | Color::BrightBlack => write!(f, "0"),
+            Color::Red | Color::BrightRed => write!(f, "1"),
+            Color::Green | Color::BrightGreen => write!(f, "2"),
+            Color::Yellow | Color::BrightYellow => write!(f, "3"),
+            Color::Blue | Color::BrightBlue => write!(f, "4"),
+            Color::Magenta | Color::BrightMagenta => write!(f, "5"),
+            Color::Cyan | Color::BrightCyan => write!(f, "6"),
+            Color::White | Color::BrightWhite => write!(f, "7"),
             Color::Fixed(num) => write!(f, "8;5;{}", num),
             Color::RGB(r, g, b) => write!(f, "8;2;{};{};{}", r, g, b),
         }

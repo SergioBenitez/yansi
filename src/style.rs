@@ -73,7 +73,11 @@ impl Iterator for Iter {
 /// The `Style` structure exposes many methods for convenience. The majority of
 /// these methods are shared with [`Paint`](Paint).
 ///
-/// ### Foreground Color Constructors
+/// ### Constructors
+///
+/// Return a plain `Style` structure.
+///
+///   * [`Style::default`](Style::default())
 ///
 /// Return a new `Style` structure with a foreground `color` applied.
 ///

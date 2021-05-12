@@ -17,8 +17,12 @@ impl Property {
     pub const HIDDEN: Self = Property(1 << 6);
     pub const STRIKETHROUGH: Self = Property(1 << 7);
 
+    pub const fn new() -> Self {
+        Property(0)
+    }
+
     #[inline(always)]
-    pub fn contains(self, other: Property) -> bool {
+    pub const fn contains(self, other: Property) -> bool {
         (other.0 & self.0) == other.0
     }
 
@@ -175,7 +179,7 @@ macro_rules! checker_for {
         @fence
     ];
         #[inline]
-        pub fn $fn_name(&self) -> bool {
+        pub const fn $fn_name(&self) -> bool {
             self.properties.contains(Property::$property)
         }
     );)*)
@@ -202,8 +206,15 @@ impl Style {
     /// assert_eq!(plain, Style::default());
     /// ```
     #[inline]
-    pub fn new(color: Color) -> Style {
-        Self::default().fg(color)
+    pub const fn new(color: Color) -> Style {
+        // Avoiding `Default::default` since unavailable as `const`
+        Self {
+            foreground: color,
+            background: Color::Unset,
+            properties: Property::new(),
+            masked: false,
+            wrap: false,
+        }
     }
 
     /// Sets the foreground to `color`.
@@ -214,7 +225,7 @@ impl Style {
     /// let red_fg = Style::default().fg(Color::Red);
     /// ```
     #[inline]
-    pub fn fg(mut self, color: Color) -> Style {
+    pub const fn fg(mut self, color: Color) -> Style {
         self.foreground = color;
         self
     }
@@ -227,7 +238,7 @@ impl Style {
     /// let red_bg = Style::default().bg(Color::Red);
     /// ```
     #[inline]
-    pub fn bg(mut self, color: Color) -> Style {
+    pub const fn bg(mut self, color: Color) -> Style {
         self.background = color;
         self
     }
@@ -247,7 +258,7 @@ impl Style {
     /// println!("{}Something happened.", masked.paint("Whoops! "));
     /// ```
     #[inline]
-    pub fn mask(mut self) -> Style {
+    pub const fn mask(mut self) -> Style {
         self.masked = true;
         self
     }
@@ -276,7 +287,7 @@ impl Style {
     /// println!("Hey! {}", wrapping.paint(inner));
     /// ```
     #[inline]
-    pub fn wrap(mut self) -> Style {
+    pub const fn wrap(mut self) -> Style {
         self.wrap = true;
         self
     }
@@ -312,7 +323,7 @@ impl Style {
     /// assert_eq!(red.fg_color(), Color::Red);
     /// ```
     #[inline]
-    pub fn fg_color(&self) -> Color {
+    pub const fn fg_color(&self) -> Color {
         self.foreground
     }
 
@@ -328,7 +339,7 @@ impl Style {
     /// assert_eq!(white.bg_color(), Color::White);
     /// ```
     #[inline]
-    pub fn bg_color(&self) -> Color {
+    pub const fn bg_color(&self) -> Color {
         self.background
     }
 
@@ -344,7 +355,7 @@ impl Style {
     /// assert!(masked.is_masked());
     /// ```
     #[inline]
-    pub fn is_masked(&self) -> bool {
+    pub const fn is_masked(&self) -> bool {
         self.masked
     }
 
@@ -360,7 +371,7 @@ impl Style {
     /// assert!(wrapping.is_wrapping());
     /// ```
     #[inline]
-    pub fn is_wrapping(&self) -> bool {
+    pub const fn is_wrapping(&self) -> bool {
         self.wrap
     }
 

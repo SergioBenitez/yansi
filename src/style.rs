@@ -73,7 +73,11 @@ impl Iterator for Iter {
 /// The `Style` structure exposes many methods for convenience. The majority of
 /// these methods are shared with [`Paint`](Paint).
 ///
-/// ### Foreground Color Constructors
+/// ### Constructors
+///
+/// Return a plain `Style` structure.
+///
+///   * [`Style::default`](Style::default())
 ///
 /// Return a new `Style` structure with a foreground `color` applied.
 ///
@@ -196,10 +200,10 @@ impl Style {
     /// properties.
     ///
     /// ```rust
-    /// use yansi::Style;
+    /// use yansi::{Color, Style};
     ///
-    /// let plain = Style::default();
-    /// assert_eq!(plain, Style::default());
+    /// let red_fg = Style::new(Color::Red);
+    /// assert_eq!(red_fg, Style::default().fg(Color::Red));
     /// ```
     #[inline]
     pub fn new(color: Color) -> Style {

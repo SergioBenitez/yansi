@@ -1,15 +1,11 @@
-extern crate parking_lot;
+extern crate serial_test;
+use self::serial_test::serial;
 
 use super::Color::*;
 use super::{Paint, Style};
 
-use self::parking_lot::Mutex;
-
-static LOCK: Mutex<()> = Mutex::new(());
-
 macro_rules! assert_renders {
     ($($input:expr => $expected:expr,)*) => {
-        let _lock = LOCK.lock();
         $(
             let (input, expected) = ($input.to_string(), $expected.to_string());
             if input != expected {
@@ -22,7 +18,6 @@ macro_rules! assert_renders {
 
 macro_rules! assert_disabled_renders {
     ($($input:expr => $expected:expr,)*) => {
-        let _lock = LOCK.lock();
         $(
             Paint::disable();
             let (actual, expected) = ($input.to_string(), $expected.to_string());
@@ -33,6 +28,7 @@ macro_rules! assert_disabled_renders {
 }
 
 #[test]
+#[serial]
 fn colors_enabled() {
     assert_renders! {
         Paint::new("text/plain") => "text/plain",
@@ -70,6 +66,7 @@ fn colors_enabled() {
 }
 
 #[test]
+#[serial]
 fn colors_disabled() {
     assert_disabled_renders! {
         Paint::new("text/plain") => "text/plain",
@@ -109,6 +106,7 @@ fn colors_disabled() {
 }
 
 #[test]
+#[serial]
 fn masked_when_disabled() {
     assert_disabled_renders! {
         Paint::masked("text/plain") => "",
@@ -124,6 +122,7 @@ fn masked_when_disabled() {
 }
 
 #[test]
+#[serial]
 fn masked_when_enabled() {
     assert_renders! {
         Paint::masked("text/plain") => "text/plain",
@@ -141,6 +140,7 @@ fn masked_when_enabled() {
 }
 
 #[test]
+#[serial]
 fn wrapping() {
     let inner = || format!("{} b {}", Paint::red("a"), Paint::green("c"));
     let inner2 = || format!("0 {} 1", Paint::magenta(&inner()).wrap());

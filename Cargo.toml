@@ -16,4 +16,4 @@ travis-ci = { repository = "SergioBenitez/yansi", branch = "master" }
 [dependencies]
 
 [dev-dependencies]
-parking_lot = { version = "0.5", features = ["nightly"] }
+serial_test = "*"

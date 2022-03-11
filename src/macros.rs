@@ -1,20 +1,19 @@
 macro_rules! style_builder_for {
     ($T:ty, |$s:ident| $props:expr, $($name:ident: $property:ident),*) => ($(
-    docify!([
-        Enables the @[_$name]_ style on @code{self}.
-
-        @fence @rust
-        use yansi::Paint; @nl @nl
-
-        @{"println!(\"Using "} @[$name] @{": {}\", "}
-            @{r#"Paint::new("hi")"#} @[.$name] @{"());"}
-        @fence
-    ];
+        #[doc = concat!(
+            "Enables the _", stringify!($name), "_ style on `self`.\n",
+            "```rust\n",
+            "use yansi::Paint;\n",
+            "\n",
+            "println!(\"Using ", stringify!($name), ": {}\", ",
+                "Paint::new(\"hi\").", stringify!($name), "());\n",
+            "```\n"
+        )]
         #[inline]
         pub fn $name(self) -> $T {
             let mut $s = self;
             $props.set(Property::$property);
             $s
         }
-    );)*)
+    )*)
 }

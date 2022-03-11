@@ -202,7 +202,6 @@
 //! [_masked_]: #masking
 //! [_wrap_]: #wrapping
 
-#[macro_use] mod docify;
 #[macro_use] mod macros;
 
 #[cfg(test)] mod tests;

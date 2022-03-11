@@ -84,22 +84,21 @@ pub struct Paint<T> {
 
 macro_rules! constructors_for {
     ($T:ty, $($name:ident: $color:ident),*) => ($(
-    docify!([
-        Constructs a new @code{Paint} structure encapsulating @code{item} with
-        the foreground color set to $name.
-
-        @fence @rust
-        use yansi::Paint; @nl @nl
-
-        @{r#"println!("This is going to be "#} @[$name] @{r#": {}", "#}
-            @[Paint::$name] @{r#"("yay!"));"#}
-        @fence
-    ];
+        #[doc = concat!(
+            "Constructs a new `Paint` structure encapsulating `item` with the foreground color\n",
+            "set to ", stringify!($name), ".\n",
+            "```rust\n",
+            "use yansi::Paint;\n",
+            "\n",
+            "println!(\"This is going to be ", stringify!($name),
+                ": {}\", Paint::", stringify!($name), "(\"yay!\"));\n",
+            "```\n"
+        )]
         #[inline]
         pub fn $name(item: $T) -> Paint<$T> {
             Paint::new(item).fg(Color::$color)
         }
-    );)*)
+    )*)
 }
 
 impl<T> Paint<T> {

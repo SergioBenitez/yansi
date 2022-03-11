@@ -161,24 +161,23 @@ impl Hash for Style {
 
 macro_rules! checker_for {
     ($($name:ident ($fn_name:ident): $property:ident),*) => ($(
-    docify!([
-        Returns @code{true} if the @[_$name]_ property is set on @code{self}.
-
-        @fence @rust
-        use yansi::Style; @nl @nl
-
-        let plain = @{"Style::default();"} @nl
-        @{"assert!(!"} @[plain.$fn_name] @{"());"} @nl @nl
-
-        let styled = @[plain.$name] @{"()"}; @nl
-        @{"assert!("} @[styled.$fn_name] @{"());"}
-        @fence
-    ];
+        #[doc = concat!(
+            "Returns `true` if the _", stringify!($name), "_ property is set on `self`.\n",
+            "```rust\n",
+            "use yansi::Style;\n",
+            "\n",
+            "let plain = Style::default();\n",
+            "assert!(!plain.", stringify!($fn_name), "());\n",
+            "\n",
+            "let styled = plain.", stringify!($name), "();\n",
+            "assert!(styled.", stringify!($fn_name), "());\n",
+            "```\n"
+        )]
         #[inline]
         pub fn $fn_name(&self) -> bool {
             self.properties.contains(Property::$property)
         }
-    );)*)
+    )*)
 }
 
 #[inline]

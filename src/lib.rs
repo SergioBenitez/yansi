@@ -99,9 +99,8 @@
 //! Items can be arbitrarily _masked_. When an item is masked and painting is
 //! disabled, the `Display` and `Debug` implementations of `Paint` write
 //! nothing. This allows you to selectively omit output when painting is
-//! disabled. Values can be masked using the [`Paint::masked()`] and
-//! [`Style::masked()`]constructors or [`paint.mask()`] and [`style.mask()`]
-//! style setters.
+//! disabled. Values can be masked using the [`Paint::masked()`] constructor
+//! or [`paint.mask()`] and [`style.mask()`] style setters.
 //!
 //! [`paint.mask()`]: Paint::mask()
 //! [`style.mask()`]: Style::mask()

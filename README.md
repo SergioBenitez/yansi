@@ -45,3 +45,7 @@ well as implementation details from [`ansi_term`].
 
  * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
  * MIT License ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+## Minimum supported Rust version
+
+The MSRV is currently 1.54.0. The MSRV may be bumped across minor versions.

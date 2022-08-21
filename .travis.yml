@@ -1,6 +1,9 @@
 language: rust
 matrix:
   include:
+  # Minimum supported Rust version (MSRV)
+  - rust: 1.54.0
+    script: cargo build --all --all-features --verbose
   - rust: stable
     script: cargo build --all --all-features --verbose
   - rust: beta

@@ -2,8 +2,10 @@
 mod windows_console {
     use std::os::raw::c_void;
 
-    #[allow(non_camel_case_types)] type c_ulong = u32;
-    #[allow(non_camel_case_types)] type c_int = i32;
+    #[allow(non_camel_case_types)]
+    type c_ulong = u32;
+    #[allow(non_camel_case_types)]
+    type c_int = i32;
     type DWORD = c_ulong;
     type LPDWORD = *mut DWORD;
     type HANDLE = *mut c_void;
@@ -26,7 +28,7 @@ mod windows_console {
     unsafe fn get_handle(handle_num: DWORD) -> Result<HANDLE, ()> {
         match GetStdHandle(handle_num) {
             handle if handle == INVALID_HANDLE_VALUE => Err(()),
-            handle => Ok(handle)
+            handle => Ok(handle),
         }
     }
 
@@ -39,7 +41,7 @@ mod windows_console {
         dw_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
         match SetConsoleMode(handle, dw_mode) {
             result if result == TRUE => Ok(()),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 
@@ -63,7 +65,9 @@ mod windows_console {
 
 #[cfg(not(windows))]
 mod windows_console {
-    pub fn enable_ansi_colors() -> bool { true }
+    pub fn enable_ansi_colors() -> bool {
+        true
+    }
 }
 
 pub use self::windows_console::enable_ansi_colors;

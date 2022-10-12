@@ -1,8 +1,9 @@
 # yansi
 
-[![Build Status](https://travis-ci.org/SergioBenitez/yansi.svg?branch=master)](https://travis-ci.org/SergioBenitez/yansi)
+[![Build Status](https://github.com/SergioBenitez/yansi/workflows/test/badge.svg)](https://github.com/SergioBenitez/yansi/actions)
 [![Current Crates.io Version](https://img.shields.io/crates/v/yansi.svg)](https://crates.io/crates/yansi)
 [![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi)
+[![MSRV](https://img.shields.io/badge/rustc-1.54+-blue.svg)](https://blog.rust-lang.org/2021/07/29/Rust-1.54.0.html)
 
 A dead simple ANSI terminal color painting library for Rust.
 

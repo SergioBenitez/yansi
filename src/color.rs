@@ -1,6 +1,6 @@
 use std::fmt;
 
-use {Paint, Style};
+use crate::{Paint, Style};
 
 /// An enum representing an ANSI color code.
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
@@ -70,7 +70,7 @@ impl Color {
         Style::new(self)
     }
 
-    pub(crate) fn ansi_fmt(&self, f: &mut fmt::Write) -> fmt::Result {
+    pub(crate) fn ansi_fmt(&self, f: &mut dyn fmt::Write) -> fmt::Result {
         match *self {
             Color::Unset => Ok(()),
             Color::Default => write!(f, "9"),

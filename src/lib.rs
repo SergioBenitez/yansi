@@ -201,14 +201,16 @@
 //! [_masked_]: #masking
 //! [_wrap_]: #wrapping
 
-#[macro_use] mod macros;
+#[macro_use]
+mod macros;
 
-#[cfg(test)] mod tests;
-mod windows;
+mod color;
 mod paint;
 mod style;
-mod color;
+#[cfg(test)]
+mod tests;
+mod windows;
 
-pub use color::Color;
-pub use style::Style;
-pub use paint::Paint;
+pub use crate::color::Color;
+pub use crate::paint::Paint;
+pub use crate::style::Style;

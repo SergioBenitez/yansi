@@ -1,8 +1,8 @@
-use std::hash::{Hash, Hasher};
 use std::fmt::{self, Display};
+use std::hash::{Hash, Hasher};
 use std::ops::BitOr;
 
-use {Paint, Color};
+use crate::{Color, Paint};
 
 #[derive(Default, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy, Clone)]
 pub struct Property(u8);
@@ -29,7 +29,10 @@ impl Property {
 
     #[inline(always)]
     pub fn iter(self) -> Iter {
-        Iter { index: 0, properties: self }
+        Iter {
+            index: 0,
+            properties: self,
+        }
     }
 }
 
@@ -181,7 +184,7 @@ macro_rules! checker_for {
 }
 
 #[inline]
-fn write_spliced<T: Display>(c: &mut bool, f: &mut fmt::Write, t: T) -> fmt::Result {
+fn write_spliced<T: Display>(c: &mut bool, f: &mut dyn fmt::Write, t: T) -> fmt::Result {
     if *c {
         write!(f, ";{}", t)
     } else {
@@ -280,10 +283,18 @@ impl Style {
         self
     }
 
-    style_builder_for!(Style, |style| style.properties,
-                       bold: BOLD, dimmed: DIMMED, italic: ITALIC,
-                       underline: UNDERLINE, blink: BLINK, invert: INVERT,
-                       hidden: HIDDEN, strikethrough: STRIKETHROUGH);
+    style_builder_for!(
+        Style,
+        |style| style.properties,
+        bold: BOLD,
+        dimmed: DIMMED,
+        italic: ITALIC,
+        underline: UNDERLINE,
+        blink: BLINK,
+        invert: INVERT,
+        hidden: HIDDEN,
+        strikethrough: STRIKETHROUGH
+    );
 
     /// Constructs a new `Paint` structure that encapsulates `item` with the
     /// style set to `self`.
@@ -363,11 +374,16 @@ impl Style {
         self.wrap
     }
 
-    checker_for!(bold (is_bold): BOLD, dimmed (is_dimmed): DIMMED,
-        italic (is_italic): ITALIC, underline (is_underline): UNDERLINE,
-        blink (is_blink): BLINK, invert (is_invert): INVERT,
-        hidden (is_hidden): HIDDEN,
-        strikethrough (is_strikethrough): STRIKETHROUGH);
+    checker_for!(
+        bold(is_bold): BOLD,
+        dimmed(is_dimmed): DIMMED,
+        italic(is_italic): ITALIC,
+        underline(is_underline): UNDERLINE,
+        blink(is_blink): BLINK,
+        invert(is_invert): INVERT,
+        hidden(is_hidden): HIDDEN,
+        strikethrough(is_strikethrough): STRIKETHROUGH
+    );
 
     #[inline(always)]
     fn is_plain(&self) -> bool {
@@ -408,7 +424,7 @@ impl Style {
     ///     }
     /// }
     /// ```
-    pub fn fmt_prefix(&self, f: &mut fmt::Write) -> fmt::Result {
+    pub fn fmt_prefix(&self, f: &mut dyn fmt::Write) -> fmt::Result {
         // A user may just want a code-free string when no styles are applied.
         if self.is_plain() {
             return Ok(());
@@ -470,7 +486,7 @@ impl Style {
     ///     }
     /// }
     /// ```
-    pub fn fmt_suffix(&self, f: &mut fmt::Write) -> fmt::Result {
+    pub fn fmt_suffix(&self, f: &mut dyn fmt::Write) -> fmt::Result {
         if self.is_plain() {
             return Ok(());
         }

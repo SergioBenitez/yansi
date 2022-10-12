@@ -1,6 +1,7 @@
 [package]
 name = "yansi"
 version = "0.6.0-dev"
+edition = "2018"
 authors = ["Sergio Benitez <sb@sergio.bz>"]
 repository = "https://github.com/SergioBenitez/yansi"
 documentation = "https://docs.rs/yansi"
@@ -10,10 +11,7 @@ readme = "README.md"
 license = "MIT/Apache-2.0"
 categories = ["command-line-interface"]
 
-[badges]
-travis-ci = { repository = "SergioBenitez/yansi", branch = "master" }
-
 [dependencies]
 
 [dev-dependencies]
-serial_test = "0.6"
+serial_test = { version = "0.9", default-features = false }

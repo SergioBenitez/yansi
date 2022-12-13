@@ -183,10 +183,10 @@ macro_rules! checker_for {
 #[inline]
 fn write_spliced<T: Display>(c: &mut bool, f: &mut dyn fmt::Write, t: T) -> fmt::Result {
     if *c {
-        write!(f, ";{}", t)
+        write!(f, ";{t}")
     } else {
         *c = true;
-        write!(f, "{}", t)
+        write!(f, "{t}")
     }
 }
 

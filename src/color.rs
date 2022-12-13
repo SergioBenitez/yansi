@@ -82,8 +82,8 @@ impl Color {
             Color::Magenta => write!(f, "5"),
             Color::Cyan => write!(f, "6"),
             Color::White => write!(f, "7"),
-            Color::Fixed(num) => write!(f, "8;5;{}", num),
-            Color::RGB(r, g, b) => write!(f, "8;2;{};{};{}", r, g, b),
+            Color::Fixed(num) => write!(f, "8;5;{num}"),
+            Color::RGB(r, g, b) => write!(f, "8;2;{r};{g};{b}"),
         }
     }
 }

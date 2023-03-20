@@ -80,7 +80,7 @@
 //! will emit the `Display` or `Debug` of the contained object and nothing else.
 //! Painting can be reenabled via the [`Paint::enable()`] method.
 //!
-//! One potential use of this feature is to allow users to control color ouput
+//! One potential use of this feature is to allow users to control color output
 //! via an environment variable. For instance, to disable coloring if the
 //! `CLICOLOR` variable is set to `0`, you might write:
 //!

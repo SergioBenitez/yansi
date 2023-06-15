@@ -39,6 +39,18 @@ impl Style {
         condition: Condition::ALWAYS,
     };
 
+    /// Returns a new style with no foreground or background, no attributes
+    /// or quirks, and an [`ALWAYS`](Condition::ALWAYS) condition.
+    ///
+    /// This is default.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::Style;
+    ///
+    /// assert_eq!(Style::new(), Style::default());
+    /// ```
     pub const fn new() -> Style {
         Style::DEFAULT
     }
@@ -68,7 +80,7 @@ impl Style {
     ///
     /// [`fmt::Display`]: fmt::Display
     /// [`fmt::Debug`]: fmt::Debug
-    /// [`Painted`]: Painted
+    /// [`Painted`]: crate::Painted
     /// [`is_enabled()`]: crate::is_enabled()
     ///
     /// # Example
@@ -135,7 +147,7 @@ impl Style {
     ///
     /// [`fmt::Display`]: fmt::Display
     /// [`fmt::Debug`]: fmt::Debug
-    /// [`Painted`]: Painted
+    /// [`Painted`]: crate::Painted
     /// [`is_enabled()`]: crate::is_enabled()
     ///
     /// # Example

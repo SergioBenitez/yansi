@@ -311,6 +311,8 @@ define_properties! {
     /// Conditionally enable styling based on whether the [`Condition`] `value`
     /// applies. Replaces any previous condition.
     ///
+    /// See the [crate level docs](crate#per-style) for more details.
+    ///
     /// # Example
     ///
     /// Enable styling `painted` only when both `stdout` and `stderr` are TTYs:
@@ -324,4 +326,28 @@ define_properties! {
     /// # }
     /// ```
     whenever(Condition),
+}
+
+macro_rules! impl_fmt_trait {
+    ($F:path, $f:literal <$G:ident> $T:ty => $s:ident.$v:ident ($V:ty)) => {
+        impl<$G: $F> $F for $T {
+            fn fmt(&$s, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+                $s.fmt_args(&<$V>::fmt, f, format_args!($f, $s.$v))
+            }
+        }
+    };
+}
+
+macro_rules! impl_fmt_traits {
+    ($($t:tt)*) => {
+        impl_fmt_trait!(core::fmt::Display, "{}" $($t)*);
+        impl_fmt_trait!(core::fmt::Debug, "{:?}" $($t)*);
+        impl_fmt_trait!(core::fmt::Octal, "{:o}" $($t)*);
+        impl_fmt_trait!(core::fmt::LowerHex, "{:x}" $($t)*);
+        impl_fmt_trait!(core::fmt::UpperHex, "{:X}" $($t)*);
+        impl_fmt_trait!(core::fmt::Pointer, "{:p}" $($t)*);
+        impl_fmt_trait!(core::fmt::Binary, "{:b}" $($t)*);
+        impl_fmt_trait!(core::fmt::LowerExp, "{:e}" $($t)*);
+        impl_fmt_trait!(core::fmt::UpperExp, "{:E}" $($t)*);
+    };
 }

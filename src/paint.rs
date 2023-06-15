@@ -1,7 +1,10 @@
 use core::fmt;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
-use alloc::string::{String, ToString};
+use alloc::{string::{String, ToString}, borrow::Cow};
+
+#[cfg(feature = "std")]
+use std::borrow::Cow;
 
 use crate::{Color, Attribute, Quirk, Style, Condition};
 
@@ -26,6 +29,7 @@ pub trait Paint {
     /// use yansi::Paint;
     ///
     /// let painted = Paint::new("hello");
+    /// assert_eq!(painted.style, yansi::Style::new());
     /// ```
     #[inline(always)]
     fn new(self) -> Painted<Self> where Self: Sized {
@@ -57,11 +61,22 @@ pub trait Paint {
     properties!(signature(&Self) -> Painted<&Self>);
 }
 
+#[allow(rustdoc::broken_intra_doc_links)]
 impl<T: ?Sized> Paint for T {
     properties!(constructor(&Self) -> Painted<&Self>);
 }
 
 impl<T> Painted<T> {
+    /// Create a new [`Painted`] with a default [`Style`].
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::Painted;
+    ///
+    /// let painted = Painted::new("hello");
+    /// assert_eq!(painted.style, yansi::Style::new());
+    /// ```
     #[inline(always)]
     pub const fn new(value: T) -> Painted<T> {
         Painted { value, style: Style::new() }
@@ -71,6 +86,13 @@ impl<T> Painted<T> {
     const fn apply(mut self, a: crate::style::Application) -> Self {
         self.style = self.style.apply(a);
         self
+    }
+
+    #[inline]
+    pub(crate) fn enabled(&self) -> bool {
+        crate::is_enabled()
+            && (self.style.condition)()
+            && crate::windows::cache_enable()
     }
 
     properties!([pub const] constructor(Self) -> Self);
@@ -107,7 +129,10 @@ impl<T> Painted<T> {
         };
 
         // Only replace when the string contains styling.
-        let string = args.to_string();
+        let string = args.as_str()
+            .map(|string| Cow::Borrowed(string))
+            .unwrap_or_else(|| Cow::Owned(args.to_string()));
+
         if string.contains('\x1B') {
             f.write_str(&string.replace(escape, ""))
         } else {
@@ -123,7 +148,10 @@ impl<T> Painted<T> {
         args: &fmt::Arguments<'_>,
     ) -> fmt::Result {
         // Only replace when the string contains styling.
-        let string = args.to_string();
+        let string = args.as_str()
+            .map(|string| Cow::Borrowed(string))
+            .unwrap_or_else(|| Cow::Owned(args.to_string()));
+
         if !string.contains('\x1B') {
             return self.color_fmt_value(fmt, f);
         }
@@ -135,7 +163,7 @@ impl<T> Painted<T> {
 
         // Write out formatted string, replacing resets with computed prefix.
         self.style.fmt_prefix(f)?;
-        write!(f, "{}", args.to_string().replace("\x1B[0m", &prefix))?;
+        write!(f, "{}", string.replace("\x1B[0m", &prefix))?;
         self.style.fmt_suffix(f)
     }
 
@@ -145,17 +173,15 @@ impl<T> Painted<T> {
         f: &mut fmt::Formatter,
         _args: fmt::Arguments<'_>,
     ) -> fmt::Result {
+        let enabled = self.enabled();
         let masked = self.style.quirks.contains(Quirk::Mask);
-        let enabled = crate::is_enabled()
-            && (self.style.condition)()
-            && crate::windows::cache_enable();
 
         #[cfg(not(feature = "alloc"))]
         match (enabled, masked) {
             (true, _) => self.color_fmt_value(fmt, f),
             (false, false) => fmt(&self.value, f),
             (false, true) => Ok(()),
-        };
+        }
 
         #[cfg(feature = "alloc")]
         match (enabled, masked, self.style.quirks.contains(Quirk::Wrap)) {
@@ -167,6 +193,8 @@ impl<T> Painted<T> {
         }
     }
 }
+
+impl_fmt_traits!(<T> Painted<T> => self.value (T));
 
 impl<T> From<Painted<T>> for Style {
     fn from(painted: Painted<T>) -> Self {

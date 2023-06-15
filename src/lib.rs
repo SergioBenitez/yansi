@@ -8,21 +8,25 @@
 //!
 //!   * This library makes simple things _simple_: `use` [`Paint`] and go!
 //!   * Zero dependencies by default. It really is simple.
+//!   * Zero allocations except as needed by opt-in [wrapping](#wrapping).
 //!   * [Automatic Windows support] for the vast majority (95%+) of Windows
 //!     users.
-//!   * Featureful `no_std` support with `default-features = false`.
-//!   * Style constructors are `const`: store styles statically, even with
+//!   * Featureful `no_std`, no-`alloc`, support with `default-features =
+//!     false`.
+//!   * `Style` constructors are `const`: store styles statically, even with
 //!     dynamic conditions!
 //!   * _Any_ type implementing a formatting trait can be stylized, not just
 //!     strings.
+//!   * Styling can be [enabled] and [disabled] globally and [dynamically], on
+//!     the fly.
+//!   * A `Style` can be predicated on arbitrary [conditions](#per-style).
 //!   * Formatting specifiers like `{:x}` and `{:08b}` are supported and
 //!     preserved!
-//!   * Styling can be [enabled] and [disabled] globally and [dynamically], on the fly.
-//!   * Styles themselves can be made [conditional](Style::whenever()).
-//!   * Built-in (optional) conditions for [TTY detection] and [common
+//!   * [Built-in (optional) conditions] for [TTY detection] and [common
 //!     environment variables].
 //!   * Arbitrary items can be [_masked_] for selective disabling.
 //!   * Styling can [_wrap_] to preserve styling across resets.
+//!   * Experimental support for [hyperlinking](hyperlink) is included.
 //!   * The name `yansi` is pretty cool 😎.
 //!
 //! All that said, `yansi` borrows API ideas from older libraries as well as
@@ -37,9 +41,10 @@
 //! [disabled]: crate::disable
 //! [dynamically]: crate::enable_when
 //! [enabled conditionally]: Condition
-//! [TTY detection]: Condition#tty
-//! [common environment variables]: Condition#environment-variables
+//! [TTY detection]: Condition#impl-Condition-1
+//! [common environment variables]: Condition#impl-Condition-2
 //! [Automatic Windows support]: #windows
+//! [Built-in (optional) conditions]: Condition#built-in-conditions
 //!
 //! # Usage
 //!
@@ -128,7 +133,9 @@
 //!
 //! # Quirks
 //!
-//! TODO: Describe quirks.
+//! `yansi` implements several "quirks", applicable via [`Quirk`] and the
+//! respective methods, that modify if and how styling is presented to the
+//! terminal. These quirks do not correspond to any ANSI styling sequences.
 //!
 //! ## Masking
 //!
@@ -159,10 +166,9 @@
 //! wrapping style. In other words, the "reset" style of the wrapped item is
 //! modified to be the wrapping style.
 //!
-//! Wrapping incurs a performance cost and is needed only in situations when
-//! styling opaque items or items that may already be styled, such as when
-//! implementing a generic logger. It exists to enable consistent styling across
-//! such items:
+//! It is needed only in situations when styling opaque items or items that may
+//! already be styled, such as when implementing a generic logger. It exists to
+//! enable consistent styling across such items:
 //!
 //! ```rust
 //! use yansi::Paint;
@@ -183,6 +189,47 @@
 //! Without wrapping, the `red()` reset after "Stop" is not overwritten:
 //! `>` Hey! <span style="color: red">Stop</span> and <span style="color: green">Go</span>
 //!
+//! Wrapping incurs a performance cost via an extra allocation and replacement
+//! if the wrapped item has styling applied to it. Otherwise, it does not
+//! allocate nor incur a meaningful performance cost.
+//!
+//! ## Brightening
+//!
+//! Most pimrary colors are available in regular and _bright_ variants, e.g.,
+//! [`Color::Red`] and [`Color::BrightRed`]. The [`Quirk::Bright`] and
+//! [`Quirk::OnBright`] quirks, typically applied via
+//! [`bright()`](Painted::bright()) and [`on_bright()`](Painted::on_bright()),
+//! provide an alternative, convenient mechanism to select the bright variant of
+//! the selected foreground or background color, respectively. The quirk
+//! provides no additional colors and is equivalent to selecting the bright
+//! variants directly.
+//!
+//! ```rust
+//! use yansi::Paint;
+//!
+//! // These are all equivalent.
+//! print!("{}", "Regular".red());
+//! print!("{}", "Bright".bright_red());
+//! print!("{}", "Bright".bright().red());
+//! print!("{}", "Bright".red().bright());
+//!
+//! # static STYLE: yansi::Style = yansi::Color::Green.bold();
+//! // The `bright` quirk lets use choose the bright variants of _any_ color,
+//! // even when the color or style is unknown at the call site.
+//! print!("{}", "Normal".paint(STYLE));
+//! print!("{}", "Bright".paint(STYLE).bright());
+//! ```
+//!
+//! `>` <span style="color: red;">Regular</span>
+//! <span style="color: hotpink;">Bright</span>
+//! <span style="color: hotpink;">Bright</span>
+//! <span style="color: hotpink;">Bright</span>
+//! <span style="color: green;"><b>Normal</b></span>
+//! <span style="color: greenyellow;"><b>Bright</b></span>
+//!
+//! The `bright()` quirk can be applied before or after a color is selected
+//! while having the same effect.
+//!
 //! # Windows
 //!
 //! Styling is supported and enabled automatically on Windows beginning with
@@ -197,7 +244,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "_nightly", feature(doc_cfg))]
-// #![deny(missing_docs)]
+#![deny(missing_docs)]
 
 #[cfg(all(not(feature = "std"), feature = "alloc"))]
 extern crate alloc;
@@ -207,15 +254,15 @@ mod macros;
 mod windows;
 mod attribute;
 mod style;
-mod fmt;
 mod color;
 mod paint;
 mod global;
 mod condition;
 mod set;
 
-// TODO: WIP.
-// pub mod hyperlink;
+#[cfg(feature = "hyperlink")]
+#[cfg_attr(feature = "_nightly", doc(cfg(feature = "hyperlink")))]
+pub mod hyperlink;
 
 pub use paint::{Painted, Paint};
 pub use attribute::{Attribute, Quirk};

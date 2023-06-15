@@ -62,7 +62,7 @@ pub enum Color {
     /// (foreground code `90`, background code `100`).
     BrightBlack,
 
-    /// <span style="background: deeppink; color: white;">Bright Red #1</span>
+    /// <span style="background: hotpink; color: white;">Bright Red #1</span>
     /// (foreground code `91`, background code `101`).
     BrightRed,
 

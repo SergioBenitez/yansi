@@ -10,6 +10,7 @@ all-features = true
 default = ["std"]
 detect-tty = ["is-terminal", "std"]
 detect-env = ["std"]
+hyperlink = ["std"]
 std = ["alloc"]
 alloc = []
 

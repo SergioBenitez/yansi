@@ -110,7 +110,7 @@ macro_rules! define_property {
 
 // Check that every variant of a property is covered.
 macro_rules! check_property_exhaustiveness {
-    ($A:path $({ $( $p:ident => $V:path $([ $($a:tt)* ])?),* $(,)? })? ) => {
+    ($A:ident $({ $( $p:ident => $V:path $([ $($a:tt)* ])?),* $(,)? })? ) => {
         const _: () = {$(
             use crate::*;
             fn _check() {
@@ -124,7 +124,7 @@ macro_rules! check_property_exhaustiveness {
 }
 
 macro_rules! define_properties {
-    ($($(#[$attr:meta])* $kind:ident ($A:ty) $({ $($t:tt)* })?),* $(,)?) => {
+    ($($(#[$attr:meta])* $kind:ident ($A:ident) $({ $($t:tt)* })?),* $(,)?) => {
         $(define_property!($(#[$attr])* $kind($A) $({ $($t)* })?);)*
         $(check_property_exhaustiveness!($A $({ $($t)* })?);)*
     }

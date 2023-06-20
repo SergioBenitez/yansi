@@ -159,6 +159,52 @@ impl Color {
         Style::new().fg(self).apply(a)
     }
 
+    /// Returns a `Style` with a foreground color of `self`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color::*};
+    ///
+    /// // A style with a foreground color of "yellow".
+    /// static DEBUG: Style = Yellow.foreground();
+    ///
+    /// // This is equivalent to the above.
+    /// static DEBUG_S: Style = Style::new().fg(Yellow);
+    ///
+    /// // The following two are equivalent. The latter is preferred.
+    /// static DEBUG_A: Style = Yellow.foreground().bold();
+    /// static DEBUG_B: Style = Yellow.bold();
+    /// # use yansi::Paint;
+    /// # assert_eq!("-".paint(DEBUG_A).to_string(), "-".paint(DEBUG_B).to_string());
+    /// ```
+    pub const fn foreground(self) -> Style {
+        Style::new().fg(self)
+    }
+
+    /// Returns a `Style` with a background color of `self`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color::*};
+    ///
+    /// // A style with a background color of "yellow".
+    /// static DEBUG: Style = Yellow.background();
+    ///
+    /// // This is equivalent to the above.
+    /// static DEBUG_S: Style = Style::new().bg(Yellow);
+    ///
+    /// // The following two are equivalent. The latter is preferred.
+    /// static DEBUG_A: Style = Yellow.background().green();
+    /// static DEBUG_B: Style = Green.on_yellow();
+    /// # use yansi::Paint;
+    /// # assert_eq!("-".paint(DEBUG_A).to_string(), "-".paint(DEBUG_B).to_string());
+    /// ```
+    pub const fn background(self) -> Style {
+        Style::new().bg(self)
+    }
+
     bg!([pub const] constructor(Self) -> Style);
 
     attr!([pub const] constructor(Self) -> Style);
@@ -176,6 +222,6 @@ impl Default for Color {
 
 impl From<Color> for Style {
     fn from(color: Color) -> Self {
-        Style::new().fg(color)
+        color.foreground()
     }
 }

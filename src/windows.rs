@@ -1,7 +1,6 @@
 #[cfg(windows)]
 mod windows_console {
     use core::ffi::c_void;
-    use core::sync::atomic::{AtomicBool, Ordering};
 
     use crate::condition::CachedBool;
 
@@ -66,7 +65,8 @@ mod windows_console {
     // Try to enable colors on Windows, and try to do it at most once.
     pub fn cache_enable() -> bool {
         static ENABLED: CachedBool = CachedBool::new();
-        *ENABLED.get_or_set(enable)
+
+        ENABLED.get_or_init(enable)
     }
 }
 

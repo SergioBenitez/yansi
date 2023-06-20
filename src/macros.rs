@@ -52,7 +52,8 @@ macro_rules! constructor {
     };
 
     ([$($q:tt)*] $(#[$attr:meta])* $r:ty, $R:ty, $kind:ident ($A:ty)) => {
-        $(#[$attr])* #[inline]
+        $(#[$attr])*
+        #[inline]
         $($q)* fn $kind(self: $r, value: $A) -> $R {
             self.apply(crate::style::Application::$kind(value))
         }
@@ -141,7 +142,8 @@ macro_rules! properties {
 }
 
 define_properties! {
-    /// Sets the foreground [`Color`] to `value`.
+    /// Returns a styled value derived from `self` with the foreground set to
+    /// `value`.
     ///
     /// This method should be used rarely. Instead, prefer to use color-specific
     /// builder methods like [`red()`](Self::red()) and
@@ -189,7 +191,8 @@ define_properties! {
         bright_white => Color::BrightWhite,
     },
 
-    /// Sets the background [`Color`] to `value`.
+    /// Returns a styled value derived from `self` with the background set to
+    /// `value`.
     ///
     /// This method should be used rarely. Instead, prefer to use color-specific
     /// builder methods like [`on_red()`](Self::on_red()) and

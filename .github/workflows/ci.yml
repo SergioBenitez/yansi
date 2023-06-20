@@ -1,0 +1,44 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: "${{ matrix.os.name }} ${{ matrix.test.name }} (${{ matrix.toolchain }})"
+    continue-on-error: false
+    runs-on: ${{ matrix.os.distro }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - { name: Linux, distro: ubuntu-latest }
+          - { name: Windows, distro: windows-latest }
+          - { name: macOS, distro: macOS-latest }
+        toolchain: [nightly, stable]
+
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Install Cargo Hack
+        run: cargo install cargo-hack
+        shell: bash
+
+      - name: Check Feature Combinations
+        run: cargo hack check --feature-powerset --no-dev-deps --skip _nightly
+        shell: bash
+
+      - name: Run Tests
+        run: cargo hack test --feature-powerset --skip _nightly
+        shell: bash

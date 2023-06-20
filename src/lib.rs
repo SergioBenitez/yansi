@@ -13,9 +13,9 @@
 //!     users.
 //!   * Featureful `no_std`, no-`alloc`, support with `default-features =
 //!     false`.
-//!   * `Style` constructors are `const`: store styles statically, even with
+//!   * [`Style` constructors are `const`]: store styles statically, even with
 //!     dynamic conditions!
-//!   * _Any_ type implementing a formatting trait can be stylized, not just
+//!   * _Any_ type implementing a formatting trait can be styled, not just
 //!     strings.
 //!   * Styling can be [enabled] and [disabled] globally and [dynamically], on
 //!     the fly.
@@ -45,6 +45,7 @@
 //! [common environment variables]: Condition#impl-Condition-2
 //! [Automatic Windows support]: #windows
 //! [Built-in (optional) conditions]: Condition#built-in-conditions
+//! [`Style` constructors are `const`]: #uniform-const-builders
 //!
 //! # Usage
 //!

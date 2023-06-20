@@ -60,10 +60,10 @@ pub struct CachedBool(AtomicU8);
 
 impl Condition {
     /// A condition that always evaluates to `true`.
-    pub const ALWAYS: Condition = Condition(|| true);
+    pub const ALWAYS: Condition = Condition(Condition::always);
 
     /// A condition that always evaluated to `false`.
-    pub const NEVER: Condition = Condition(|| false);
+    pub const NEVER: Condition = Condition(Condition::never);
 
     /// Creates a dynamically checked condition from a function `f`.
     ///
@@ -119,6 +119,12 @@ impl Condition {
             false => Condition::NEVER,
         }
     }
+
+    /// The backing function for [`Condition::ALWAYS`]. Returns `true` always.
+    pub const fn always() -> bool { true }
+
+    /// The backing function for [`Condition::NEVER`]. Returns `false` always.
+    pub const fn never() -> bool { false }
 }
 
 impl Default for Condition {
@@ -137,8 +143,6 @@ impl core::ops::Deref for Condition {
 
 impl AtomicCondition {
     pub const ALWAYS: AtomicCondition = AtomicCondition::from(Condition::ALWAYS);
-
-    // pub const NEVER: AtomicCondition = AtomicCondition::from(Condition::NEVER);
 
     pub const fn from(value: Condition) -> Self {
         AtomicCondition(AtomicPtr::new(value.0 as *mut ()))

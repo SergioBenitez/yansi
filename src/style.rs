@@ -5,6 +5,12 @@ use crate::attribute::{Attribute, Quirk};
 use crate::condition::Condition;
 use crate::set::Set;
 
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::{string::String, borrow::Cow};
+
+#[cfg(feature = "std")]
+use std::borrow::Cow;
+
 /// A set of styling options.
 #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Style {
@@ -42,7 +48,7 @@ impl Style {
     /// Returns a new style with no foreground or background, no attributes
     /// or quirks, and an [`ALWAYS`](Condition::ALWAYS) condition.
     ///
-    /// This is default.
+    /// This is the default.
     ///
     /// # Example
     ///
@@ -51,6 +57,7 @@ impl Style {
     ///
     /// assert_eq!(Style::new(), Style::default());
     /// ```
+    #[inline]
     pub const fn new() -> Style {
         Style::DEFAULT
     }
@@ -121,21 +128,33 @@ impl Style {
             attr.fmt(&mut f)?;
         }
 
-        if let Some(color) = brighten(self.foreground, self.quirks.contains(Quirk::Bright)) {
-            f.splice()?;
-            color.fmt(&mut f, Variant::Fg)?;
-        }
-
         if let Some(color) = brighten(self.background, self.quirks.contains(Quirk::OnBright)) {
             f.splice()?;
             color.fmt(&mut f, Variant::Bg)?;
+        }
+
+        if let Some(color) = brighten(self.foreground, self.quirks.contains(Quirk::Bright)) {
+            f.splice()?;
+            color.fmt(&mut f, Variant::Fg)?;
         }
 
         // All of the sequences end with an `m`.
         f.write_char('m')
     }
 
-    /// Writes the ANSI code suffix for the currently set styles.
+    /// Returns the ANSI code sequence prefix for the style as a string.
+    ///
+    /// This returns a string with the exact same sequence written by
+    /// [`fmt_prefix()`](Self::fmt_prefix()). See that method for details.
+    #[cfg(feature = "alloc")]
+    #[cfg_attr(feature = "_nightly", doc(cfg(feature = "alloc")))]
+    pub fn prefix_seq(&self) -> Cow<'static, str> {
+        let mut prefix = String::new();
+        let _ = self.fmt_prefix(&mut prefix);
+        prefix.into()
+    }
+
+    /// Writes the ANSI code sequence suffix for the style.
     ///
     /// This method is intended to be used inside of [`fmt::Display`] and
     /// [`fmt::Debug`] implementations for custom or specialized use-cases. Most
@@ -175,6 +194,20 @@ impl Style {
         }
 
         f.write_str("\x1B[0m")
+    }
+
+    /// Returns the ANSI code sequence suffix for the style as a string.
+    ///
+    /// This returns a string with the exact same sequence written by
+    /// [`fmt_suffix()`](Self::fmt_suffix()). See that method for details.
+    #[cfg(feature = "alloc")]
+    #[cfg_attr(feature = "_nightly", doc(cfg(feature = "alloc")))]
+    pub fn suffix_seq(&self) -> Cow<'static, str> {
+        if self == &Style::DEFAULT {
+            return Cow::from("");
+        }
+
+        Cow::from("\x1B[0m")
     }
 
     properties!([pub const] constructor(Self) -> Self);

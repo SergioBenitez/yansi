@@ -1,3 +1,5 @@
+use crate::Style;
+
 /// Enum representing text attributes, largely for text formatting.
 ///
 /// Text attributes are typically applied to a [`Style`], [`Color`], or
@@ -141,16 +143,44 @@ impl Attribute {
             Attribute::Strike => 9,
         })
     }
+
+    /// Returns a `Style` with the attribute `self` enabled.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::{Style, Attribute::Bold};
+    ///
+    /// static EMBOLDEN: Style = Bold.style();
+    /// ```
+    pub const fn style(self) -> Style {
+        Style::new().attr(self)
+    }
+}
+
+impl Quirk {
+    /// Returns a `Style` with the quirk `self` enabled.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::{Style, Quirk::Mask};
+    ///
+    /// static MASKED: Style = Mask.style();
+    /// ```
+    pub const fn style(self) -> Style {
+        Style::new().quirk(self)
+    }
 }
 
 impl From<Attribute> for crate::Style {
     fn from(attr: Attribute) -> Self {
-        crate::Style::new().attr(attr)
+        attr.style()
     }
 }
 
 impl From<Quirk> for crate::Style {
     fn from(quirk: Quirk) -> Self {
-        crate::Style::new().quirk(quirk)
+        quirk.style()
     }
 }

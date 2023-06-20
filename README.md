@@ -31,9 +31,9 @@ Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
     users.
   * Featureful `no_std`, no-`alloc`, support with `default-features =
     false`.
-  * `Style` constructors are `const`: store styles statically, even with
+  * [`Style` constructors are `const`]: store styles statically, even with
     dynamic conditions!
-  * _Any_ type implementing a formatting trait can be stylized, not just
+  * _Any_ type implementing a formatting trait can be stylizd, not just
     strings.
   * Styling can be [enabled] and [disabled] globally and [dynamically], on
     the fly.
@@ -64,6 +64,7 @@ Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
 [Automatic Windows support]: https://docs.rs/yansi/1.0.0-beta/yansi/#windows
 [Built-in (optional) conditions]: https://docs.rs/yansi/1.0.0-beta/yansi/struct.Condition.html#built-in-conditions
 [hyperlinking]: https://docs.rs/yansi/1.0.0-beta/yansi/hyperlink/index.html
+[`Style` constructors are `const`]: https://docs.rs/yansi/1.0.0-beta/yansi/#uniform-const-builders
 
 ## License
 

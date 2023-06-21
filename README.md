@@ -47,24 +47,24 @@ Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
   * Experimental support for [hyperlinking] is included.
   * The name `yansi` is pretty cool 😎.
 
-[`Paint`]: https://docs.rs/yansi/1.0.0-beta/yansi/trait.Paint.html
+[`Paint`]: https://docs.rs/yansi/1.0.0-gamma/yansi/trait.Paint.html
 [`ansi_term`]: https://crates.io/crates/ansi_term
 [`colored`]: https://crates.io/crates/colored
 [`term_painter`]: https://crates.io/crates/term-painter
-[_masked_]: https://docs.rs/yansi/1.0.0-beta/yansi/#masking
-[wrapping]: https://docs.rs/yansi/1.0.0-beta/yansi/#wrapping
-[_wrap_]: https://docs.rs/yansi/1.0.0-beta/yansi/#wrapping
-[conditions]: https://docs.rs/yansi/1.0.0-beta/yansi/#per-style
-[enabled]: https://docs.rs/yansi/1.0.0-beta/yansi/fn.enable.html
-[disabled]: https://docs.rs/yansi/1.0.0-beta/yansi/fn.disable.html
-[dynamically]: https://docs.rs/yansi/1.0.0-beta/yansi/fn.enable_when.html
-[enabled conditionally]: https://docs.rs/yansi/1.0.0-beta/yansi/struct.Condition.html
-[TTY detection]: https://docs.rs/yansi/1.0.0-beta/yansi/struct.Condition.html#impl-Condition-1
-[common environment variables]: https://docs.rs/yansi/1.0.0-beta/yansi/struct.Condition.html#impl-Condition-2
-[Automatic Windows support]: https://docs.rs/yansi/1.0.0-beta/yansi/#windows
-[Built-in (optional) conditions]: https://docs.rs/yansi/1.0.0-beta/yansi/struct.Condition.html#built-in-conditions
-[hyperlinking]: https://docs.rs/yansi/1.0.0-beta/yansi/hyperlink/index.html
-[`Style` constructors are `const`]: https://docs.rs/yansi/1.0.0-beta/yansi/#uniform-const-builders
+[_masked_]: https://docs.rs/yansi/1.0.0-gamma/yansi/#masking
+[wrapping]: https://docs.rs/yansi/1.0.0-gamma/yansi/#wrapping
+[_wrap_]: https://docs.rs/yansi/1.0.0-gamma/yansi/#wrapping
+[conditions]: https://docs.rs/yansi/1.0.0-gamma/yansi/#per-style
+[enabled]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.enable.html
+[disabled]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.disable.html
+[dynamically]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.enable_when.html
+[enabled conditionally]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html
+[TTY detection]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html#impl-Condition-1
+[common environment variables]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html#impl-Condition-2
+[Automatic Windows support]: https://docs.rs/yansi/1.0.0-gamma/yansi/#windows
+[Built-in (optional) conditions]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html#built-in-conditions
+[hyperlinking]: https://docs.rs/yansi/1.0.0-gamma/yansi/hyperlink/index.html
+[`Style` constructors are `const`]: https://docs.rs/yansi/1.0.0-gamma/yansi/#uniform-const-builders
 
 ## License
 

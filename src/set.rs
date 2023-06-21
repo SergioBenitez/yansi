@@ -31,7 +31,7 @@ impl<T: SetMember> Iterator for Iter<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while self.index < T::MAX_VALUE {
+        while self.index <= T::MAX_VALUE {
             let mask: u16 = 1 << self.index;
 
             self.index += 1;

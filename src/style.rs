@@ -12,13 +12,16 @@ use alloc::{string::String, borrow::Cow};
 use std::borrow::Cow;
 
 /// A set of styling options.
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Default, Debug, Copy, Clone)]
 pub struct Style {
-    pub(crate) foreground: Option<Color>,
-    pub(crate) background: Option<Color>,
+    /// The foreground color.
+    pub foreground: Option<Color>,
+    /// The background color.
+    pub background: Option<Color>,
     pub(crate) attributes: Set<Attribute>,
     pub(crate) quirks: Set<Quirk>,
-    pub(crate) condition: Condition,
+    /// The condition.
+    pub condition: Condition,
 }
 
 struct AnsiSplicer<'a> {
@@ -224,5 +227,118 @@ impl AnsiSplicer<'_> {
 impl fmt::Write for AnsiSplicer<'_> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.f.write_str(s)
+    }
+}
+
+// , PartialEq, Eq, PartialOrd, Ord, Hash
+
+impl PartialEq for Style {
+    fn eq(&self, other: &Self) -> bool {
+        let Style {
+            foreground: fg_a,
+            background: bg_a,
+            attributes: attrs_a,
+            quirks: _,
+            condition: cond_a,
+        } = self;
+
+        let Style {
+            foreground: fg_b,
+            background: bg_b,
+            attributes: attrs_b,
+            quirks: _,
+            condition: cond_b,
+        } = other;
+
+        fg_a == fg_b
+            && bg_a == bg_b
+            && attrs_a == attrs_b
+            && cond_a == cond_b
+    }
+}
+
+impl Eq for Style { }
+
+impl core::hash::Hash for Style {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
+        let Style { foreground, background, attributes, quirks: _, condition, } = self;
+        foreground.hash(state);
+        background.hash(state);
+        attributes.hash(state);
+        condition.hash(state);
+    }
+}
+
+impl PartialOrd for Style {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+        let Style {
+            foreground: fg_a,
+            background: bg_a,
+            attributes: attrs_a,
+            quirks: _,
+            condition: cond_a,
+        } = self;
+
+        let Style {
+            foreground: fg_b,
+            background: bg_b,
+            attributes: attrs_b,
+            quirks: _,
+            condition: cond_b,
+        } = other;
+
+        match fg_a.partial_cmp(&fg_b) {
+            Some(core::cmp::Ordering::Equal) => {}
+            ord => return ord,
+        }
+
+        match bg_a.partial_cmp(&bg_b) {
+            Some(core::cmp::Ordering::Equal) => {}
+            ord => return ord,
+        }
+
+        match attrs_a.partial_cmp(&attrs_b) {
+            Some(core::cmp::Ordering::Equal) => {}
+            ord => return ord,
+        }
+
+        cond_a.partial_cmp(&cond_b)
+    }
+}
+
+impl Ord for Style {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+        let Style {
+            foreground: fg_a,
+            background: bg_a,
+            attributes: attrs_a,
+            quirks: _,
+            condition: cond_a,
+        } = self;
+
+        let Style {
+            foreground: fg_b,
+            background: bg_b,
+            attributes: attrs_b,
+            quirks: _,
+            condition: cond_b,
+        } = other;
+
+        match fg_a.cmp(&fg_b) {
+            core::cmp::Ordering::Equal => {}
+            ord => return ord,
+        }
+
+        match bg_a.cmp(&bg_b) {
+            core::cmp::Ordering::Equal => {}
+            ord => return ord,
+        }
+
+        match attrs_a.cmp(&attrs_b) {
+            core::cmp::Ordering::Equal => {}
+            ord => return ord,
+        }
+
+        cond_a.cmp(&cond_b)
     }
 }

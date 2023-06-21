@@ -11,7 +11,7 @@
 //!   * Zero allocations except as needed by opt-in [wrapping](#wrapping).
 //!   * [Automatic Windows support] for the vast majority (95%+) of Windows
 //!     users.
-//!   * Featureful `no_std`, no-`alloc`, support with `default-features =
+//!   * [Featureful `no_std`], no-`alloc`, support with `default-features =
 //!     false`.
 //!   * [`Style` constructors are `const`]: store styles statically, even with
 //!     dynamic conditions!
@@ -26,7 +26,7 @@
 //!     environment variables].
 //!   * Arbitrary items can be [_masked_] for selective disabling.
 //!   * Styling can [_wrap_] to preserve styling across resets.
-//!   * Experimental support for [hyperlinking](hyperlink) is included.
+//!   * Experimental support for [hyperlinking] is included.
 //!   * The name `yansi` is pretty cool 😎.
 //!
 //! All that said, `yansi` borrows API ideas from older libraries as well as
@@ -46,6 +46,8 @@
 //! [Automatic Windows support]: #windows
 //! [Built-in (optional) conditions]: Condition#built-in-conditions
 //! [`Style` constructors are `const`]: #uniform-const-builders
+//! [hyperlinking]: hyperlink
+//! [Featureful `no_std`]: #crate-features
 //!
 //! # Usage
 //!
@@ -161,6 +163,9 @@
 //!
 //! ## Wrapping
 //!
+//! **Note:** _Either the `std` or `alloc` feature is required for wrapping.
+//! `std` is enabled by default. See [crate features](#crate-features)._
+//!
 //! Styling can _wrap_ via [`Quirk::Wrap`] or the equivalent
 //! [`wrap()`](Painted::wrap()) constructor. A wrapping style modifies any
 //! styling resets emitted by the internal value so that they correspond to the
@@ -242,6 +247,25 @@
 //! Yansi enables styling support on Windows by querying the Windows API on the
 //! first attempt to color. If support is available, it is enabled. If support
 //! is not available, styling is disabled and no styling is emitted.
+//!
+//! # Crate Features
+//!
+//! | Feature      | Default? | Also Enables | Notes                            |
+//! |--------------|----------|--------------|----------------------------------|
+//! | `std`        | **Y**    | `alloc`      | Use `std` library.               |
+//! | `alloc`      | **Y**    |              | Use `alloc`. Enables [wrapping]. |
+//! | `detect-tty` | N        | `std`        | See [optional conditions].       |
+//! | `detect-env` | N        | `std`        | See [optional conditions].       |
+//! | `hyperlink`  | N        | `std`        | Enables [hyperlinking] support.  |
+//!
+//! With `no-default-features = true`, this crate is `#[no_std]`.
+//!
+//! Without any features enabled, all functionality except [wrapping] is
+//! available. To recover wrapping _with_ `#[no_std]`, set `no-default-features
+//! = false` and enable the `alloc` feature, which requires `alloc` support.
+//!
+//! [optional conditions]: Condition#built-in-conditions
+//! [wrapping]: #wrapping
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "_nightly", feature(doc_cfg))]

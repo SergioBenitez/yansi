@@ -94,6 +94,7 @@ pub fn whenever(condition: Condition) {
 ///
 /// ```rust
 /// // Styling is enabled by default.
+/// # yansi::enable();
 /// assert!(yansi::is_enabled());
 ///
 /// // Disable it with `Painted::disable()`.

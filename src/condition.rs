@@ -59,6 +59,13 @@ pub struct AtomicCondition(AtomicPtr<()>);
 pub struct CachedBool(AtomicU8);
 
 impl Condition {
+    /// A condition that evaluates to `true` if the OS supports coloring.
+    ///
+    /// On Windows, this condition tries to enable coloring support on the first
+    /// call and caches the result for subsequent calls. Outside of Windows,
+    /// this always evaluates to `true`.
+    pub const DEFAULT: Condition = Condition(Condition::os_support);
+
     /// A condition that always evaluates to `true`.
     pub const ALWAYS: Condition = Condition(Condition::always);
 
@@ -125,11 +132,20 @@ impl Condition {
 
     /// The backing function for [`Condition::NEVER`]. Returns `false` always.
     pub const fn never() -> bool { false }
+
+    /// The backing function for [`Condition::DEFAULT`].
+    ///
+    /// Returns `true` if the current OS supports ANSI escape sequences for
+    /// coloring. On Windows, the first call to this function attempts to enable
+    /// support. Outside of windows, this always returns `true`.
+    pub fn os_support() -> bool {
+        crate::windows::cache_enable()
+    }
 }
 
 impl Default for Condition {
     fn default() -> Self {
-        Condition::ALWAYS
+        Condition::DEFAULT
     }
 }
 
@@ -142,7 +158,7 @@ impl core::ops::Deref for Condition {
 }
 
 impl AtomicCondition {
-    pub const ALWAYS: AtomicCondition = AtomicCondition::from(Condition::ALWAYS);
+    pub const DEFAULT: AtomicCondition = AtomicCondition::from(Condition::DEFAULT);
 
     pub const fn from(value: Condition) -> Self {
         AtomicCondition(AtomicPtr::new(value.0 as *mut ()))
@@ -196,7 +212,18 @@ impl CachedBool {
 
 impl fmt::Debug for Condition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
+        let mut dbg = f.debug_tuple("Condition");
+        if *self == Condition::DEFAULT {
+            dbg.field(&"DEFAULT");
+        } else if *self == Condition::ALWAYS {
+            dbg.field(&"ALWAYS");
+        } else if *self == Condition::NEVER {
+            dbg.field(&"NEVER");
+        } else {
+            dbg.field(&self.0);
+        }
+
+        dbg.finish()
     }
 }
 

@@ -76,8 +76,6 @@ mod windows_console {
     #[allow(dead_code)]
     pub fn enable() -> bool { true }
 
-    // Try to enable colors on Windows, and try to do it at most once. It's okay
-    // if we try more than once. We only try when painting is enabled.
     #[inline(always)]
     pub fn cache_enable() -> bool { true }
 }

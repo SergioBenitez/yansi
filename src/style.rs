@@ -12,15 +12,48 @@ use alloc::{string::String, borrow::Cow};
 use std::borrow::Cow;
 
 /// A set of styling options.
+///
+/// ## Equivalence and Ordering
+///
+/// Only a style's `foreground`, `background`, and set of `attributes` is
+/// considered when testing for equivalence or producing an ordering via
+/// `PartialEq` or `Eq`, and `PartialOrd` or `Ord`. A style's quirks and
+/// conditions are ignored.
 #[derive(Default, Debug, Copy, Clone)]
 pub struct Style {
-    /// The foreground color.
+    /// The foreground color. Defaults to `None`.
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color};
+    ///
+    /// assert_eq!(Style::new().foreground, None);
+    /// assert_eq!(Style::new().green().foreground, Some(Color::Green));
+    /// ```
     pub foreground: Option<Color>,
-    /// The background color.
+    /// The background color. Defaults to `None`.
+    ///
+    /// ```rust
+    /// use yansi::{Style, Color};
+    ///
+    /// assert_eq!(Style::new().background, None);
+    /// assert_eq!(Style::new().on_red().background, Some(Color::Red));
+    /// ```
     pub background: Option<Color>,
     pub(crate) attributes: Set<Attribute>,
     pub(crate) quirks: Set<Quirk>,
     /// The condition.
+    ///
+    /// To check a style's condition directly, invoke it as a function:
+    ///
+    /// ```rust
+    /// use yansi::{Style, Condition};
+    ///
+    /// let style = Style::new().whenever(Condition::ALWAYS);
+    /// assert!((style.condition)());
+    ///
+    /// let style = Style::new().whenever(Condition::NEVER);
+    /// assert!(!(style.condition)());
+    /// ```
     pub condition: Condition,
 }
 
@@ -45,13 +78,13 @@ impl Style {
         background: None,
         attributes: Set::EMPTY,
         quirks: Set::EMPTY,
-        condition: Condition::ALWAYS,
+        condition: Condition::DEFAULT,
     };
 
     /// Returns a new style with no foreground or background, no attributes
-    /// or quirks, and an [`ALWAYS`](Condition::ALWAYS) condition.
+    /// or quirks, and [`Condition::DEFAULT`].
     ///
-    /// This is the default.
+    /// This is the default returned by [`Default::default()`].
     ///
     /// # Example
     ///
@@ -230,8 +263,6 @@ impl fmt::Write for AnsiSplicer<'_> {
     }
 }
 
-// , PartialEq, Eq, PartialOrd, Ord, Hash
-
 impl PartialEq for Style {
     fn eq(&self, other: &Self) -> bool {
         let Style {
@@ -239,7 +270,7 @@ impl PartialEq for Style {
             background: bg_a,
             attributes: attrs_a,
             quirks: _,
-            condition: cond_a,
+            condition: _,
         } = self;
 
         let Style {
@@ -247,13 +278,10 @@ impl PartialEq for Style {
             background: bg_b,
             attributes: attrs_b,
             quirks: _,
-            condition: cond_b,
+            condition: _,
         } = other;
 
-        fg_a == fg_b
-            && bg_a == bg_b
-            && attrs_a == attrs_b
-            && cond_a == cond_b
+        fg_a == fg_b && bg_a == bg_b && attrs_a == attrs_b
     }
 }
 
@@ -261,11 +289,10 @@ impl Eq for Style { }
 
 impl core::hash::Hash for Style {
     fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
-        let Style { foreground, background, attributes, quirks: _, condition, } = self;
+        let Style { foreground, background, attributes, quirks: _, condition: _, } = self;
         foreground.hash(state);
         background.hash(state);
         attributes.hash(state);
-        condition.hash(state);
     }
 }
 
@@ -276,7 +303,7 @@ impl PartialOrd for Style {
             background: bg_a,
             attributes: attrs_a,
             quirks: _,
-            condition: cond_a,
+            condition: _,
         } = self;
 
         let Style {
@@ -284,7 +311,7 @@ impl PartialOrd for Style {
             background: bg_b,
             attributes: attrs_b,
             quirks: _,
-            condition: cond_b,
+            condition: _,
         } = other;
 
         match fg_a.partial_cmp(&fg_b) {
@@ -297,12 +324,7 @@ impl PartialOrd for Style {
             ord => return ord,
         }
 
-        match attrs_a.partial_cmp(&attrs_b) {
-            Some(core::cmp::Ordering::Equal) => {}
-            ord => return ord,
-        }
-
-        cond_a.partial_cmp(&cond_b)
+        attrs_a.partial_cmp(&attrs_b)
     }
 }
 
@@ -313,7 +335,7 @@ impl Ord for Style {
             background: bg_a,
             attributes: attrs_a,
             quirks: _,
-            condition: cond_a,
+            condition: _,
         } = self;
 
         let Style {
@@ -321,7 +343,7 @@ impl Ord for Style {
             background: bg_b,
             attributes: attrs_b,
             quirks: _,
-            condition: cond_b,
+            condition: _,
         } = other;
 
         match fg_a.cmp(&fg_b) {
@@ -334,11 +356,6 @@ impl Ord for Style {
             ord => return ord,
         }
 
-        match attrs_a.cmp(&attrs_b) {
-            core::cmp::Ordering::Equal => {}
-            ord => return ord,
-        }
-
-        cond_a.cmp(&cond_b)
+        attrs_a.cmp(&attrs_b)
     }
 }

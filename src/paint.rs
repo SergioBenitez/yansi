@@ -90,9 +90,7 @@ impl<T> Painted<T> {
 
     #[inline]
     pub(crate) fn enabled(&self) -> bool {
-        crate::is_enabled()
-            && (self.style.condition)()
-            && crate::windows::cache_enable()
+        crate::is_enabled() && (self.style.condition)()
     }
 
     properties!([pub const] constructor(Self) -> Self);

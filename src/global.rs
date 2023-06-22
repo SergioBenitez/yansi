@@ -1,8 +1,8 @@
 use crate::condition::{AtomicCondition, Condition};
 
-static ENABLED: AtomicCondition = AtomicCondition::ALWAYS;
+static ENABLED: AtomicCondition = AtomicCondition::DEFAULT;
 
-/// Disables styling globally.
+/// Unconditionally disables styling globally.
 ///
 /// # Example
 ///
@@ -20,10 +20,10 @@ pub fn disable() {
     ENABLED.store(Condition::NEVER);
 }
 
-/// Enables styling globally.
+/// Unconditionally enables styling globally.
 ///
-/// Styling is enabled by default, so this method should only be called to _re_
-/// enable styling.
+/// By default, styling is enabled based on [`Condition::Default`], which checks
+/// for operating system support.
 ///
 /// # Example
 ///
@@ -42,7 +42,7 @@ pub fn enable() {
     ENABLED.store(Condition::ALWAYS);
 }
 
-/// Dynamically enable styling globally based on `condition`.
+/// Dynamically enables styling globally based on `condition`.
 ///
 /// The supplied `condition` is checked dynamically, any time a painted value is
 /// displayed. As a result, `condition` should be _fast_.

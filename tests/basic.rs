@@ -1,10 +1,12 @@
-use yansi::{Paint, Style, Color::*};
+use yansi::{Paint, Style, Condition, Color::*};
 
 static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 macro_rules! assert_renders {
     ($($input:expr => $expected:expr,)*) => {
         let _lock = LOCK.lock().expect("FAIL FAST - LOCK POISONED");
+        yansi::enable();
+
         $(
             let (input, expected) = ($input.to_string(), $expected.to_string());
             if input != expected {
@@ -16,6 +18,8 @@ macro_rules! assert_renders {
                     stringify!($input), $input.style);
             }
         )*
+
+        yansi::enable_when(Condition::DEFAULT);
     };
 }
 

@@ -43,18 +43,18 @@ pub struct Style {
     pub(crate) quirks: Set<Quirk>,
     /// The condition.
     ///
-    /// To check a style's condition directly, invoke it as a function:
+    /// To check a style's condition directly, use [`Style::enabled()`]:
     ///
     /// ```rust
     /// use yansi::{Style, Condition};
     ///
     /// let style = Style::new().whenever(Condition::ALWAYS);
-    /// assert!((style.condition)());
+    /// assert!(style.enabled());
     ///
     /// let style = Style::new().whenever(Condition::NEVER);
-    /// assert!(!(style.condition)());
+    /// assert!(!style.enabled());
     /// ```
-    pub condition: Condition,
+    pub condition: Option<Condition>,
 }
 
 struct AnsiSplicer<'a> {
@@ -78,7 +78,7 @@ impl Style {
         background: None,
         attributes: Set::EMPTY,
         quirks: Set::EMPTY,
-        condition: Condition::DEFAULT,
+        condition: None,
     };
 
     /// Returns a new style with no foreground or background, no attributes
@@ -103,12 +103,37 @@ impl Style {
         match a {
             Application::fg(color) => self.foreground = Some(color),
             Application::bg(color) => self.background = Some(color),
-            Application::whenever(cond) => self.condition = cond,
+            Application::whenever(cond) => self.condition = Some(cond),
             Application::attr(attr) => self.attributes = self.attributes.union(attr),
             Application::quirk(quirk) => self.quirks = self.quirks.union(quirk),
         }
 
         self
+    }
+
+    /// Returns `true` if this style is enabled, based on
+    /// [`condition`](Paint:condition).
+    ///
+    /// **Note:** _For a style to be effected, both this method **and**
+    /// [`yansi::is_enabled()`](crate::is_enabled) must return `true`._
+    ///
+    /// When there is no condition set, this method always returns `true`. When
+    /// a condition has been set, this evaluates the condition and returns the
+    /// result.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use yansi::{Style, Condition};
+    ///
+    /// let style = Style::new().whenever(Condition::ALWAYS);
+    /// assert!(style.enabled());
+    ///
+    /// let style = Style::new().whenever(Condition::NEVER);
+    /// assert!(!style.enabled());
+    /// ```
+    pub fn enabled(&self) -> bool {
+        self.condition.map_or(true, |c| c())
     }
 
     /// Writes the ANSI code prefix for the currently set styles.

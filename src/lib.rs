@@ -39,7 +39,7 @@
 //! [_wrap_]: #wrapping
 //! [enabled]: crate::enable
 //! [disabled]: crate::disable
-//! [dynamically]: crate::enable_when
+//! [dynamically]: crate::whenever
 //! [enabled conditionally]: Condition
 //! [TTY detection]: Condition#impl-Condition-1
 //! [common environment variables]: Condition#impl-Condition-2
@@ -106,7 +106,7 @@
 //! [`enable()`] and [`disable()`]. When styling is disabled, no ANSI escape
 //! codes are emitted, and [_masked_] values are omitted.
 //!
-//! Stying can also be _conditionally_ globally enabled via [`enable_when()`]
+//! Stying can also be _conditionally_ globally enabled via [`whenever()`]
 //! based on an arbitrary and dynamic [`Condition`]: a function that returns
 //! `true` to enable styling and `false` to disable it.
 //!
@@ -294,4 +294,4 @@ pub use attribute::{Attribute, Quirk};
 pub use style::Style;
 pub use color::Color;
 pub use condition::Condition;
-pub use global::{enable, enable_when, disable, is_enabled};
+pub use global::{enable, whenever, disable, is_enabled};

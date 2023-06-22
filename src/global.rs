@@ -22,7 +22,7 @@ pub fn disable() {
 
 /// Unconditionally enables styling globally.
 ///
-/// By default, styling is enabled based on [`Condition::Default`], which checks
+/// By default, styling is enabled based on [`Condition::DEFAULT`], which checks
 /// for operating system support.
 ///
 /// # Example
@@ -44,8 +44,8 @@ pub fn enable() {
 
 /// Dynamically enables styling globally based on `condition`.
 ///
-/// The supplied `condition` is checked dynamically, any time a painted value is
-/// displayed. As a result, `condition` should be _fast_.
+/// `condition` is expected to be fast: it is checked dynamically, each time a
+/// [`Painted`](crate::Painted) value is displayed.
 ///
 /// # Example
 ///
@@ -53,10 +53,10 @@ pub fn enable() {
 /// # #[cfg(all(feature = "detect-tty", feature = "detect-env"))] {
 /// use yansi::Condition;
 ///
-/// yansi::enable_when(Condition::STDOUT_IS_TTY);
+/// yansi::whenever(Condition::STDOUT_IS_TTY);
 ///
 /// // On each styling, check if we have TTYs.
-/// yansi::enable_when(Condition::STDOUTERR_ARE_TTY_LIVE);
+/// yansi::whenever(Condition::STDOUTERR_ARE_TTY_LIVE);
 ///
 /// // Check `NO_COLOR`, `CLICOLOR`, and if we have TTYs.
 /// const HAVE_COLOR: Condition = Condition(|| {
@@ -67,10 +67,10 @@ pub fn enable() {
 ///
 /// // This will call `HAVE_COLOR` every time styling is needed. In this
 /// // example, this means that env vars will be checked on each styling.
-/// yansi::enable_when(HAVE_COLOR);
+/// yansi::whenever(HAVE_COLOR);
 ///
 /// // This instead caches the value (checking `env()` exactly once, now).
-/// yansi::enable_when(Condition::cached((HAVE_COLOR)()));
+/// yansi::whenever(Condition::cached((HAVE_COLOR)()));
 ///
 /// // Is identical to this:
 /// match (HAVE_COLOR)() {
@@ -79,14 +79,16 @@ pub fn enable() {
 /// }
 /// # }
 /// ```
-pub fn enable_when(condition: Condition) {
+pub fn whenever(condition: Condition) {
     ENABLED.store(condition);
 }
 
 /// Returns `true` if styling is globally enabled and `false` otherwise.
 ///
-/// Styling is enabled by default but can be enabled and disabled on-the-fly
-/// with [`enable()`] and [`disable()`].
+/// By default, styling is enabled based on [`Condition::DEFAULT`], which checks
+/// for operating system support. It can be enabled and disabled on-the-fly with
+/// [`enable()`] and [`disable()`] and via a dynamic condition with
+/// [`whenever()`].
 ///
 /// # Example
 ///

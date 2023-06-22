@@ -14,12 +14,12 @@ macro_rules! assert_renders {
                     global, condition = {}, {}\n\
                     input = {}\nstyle = {:#?}\n",
                     expected, expected, input, input,
-                    yansi::is_enabled(), ($input.style.condition)(),
+                    yansi::is_enabled(), $input.style.enabled(),
                     stringify!($input), $input.style);
             }
         )*
 
-        yansi::enable_when(Condition::DEFAULT);
+        yansi::whenever(Condition::DEFAULT);
     };
 }
 

@@ -57,7 +57,7 @@ Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
 [conditions]: https://docs.rs/yansi/1.0.0-gamma/yansi/#per-style
 [enabled]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.enable.html
 [disabled]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.disable.html
-[dynamically]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.enable_when.html
+[dynamically]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.whenever.html
 [enabled conditionally]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html
 [TTY detection]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html#impl-Condition-1
 [common environment variables]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html#impl-Condition-2

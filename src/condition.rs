@@ -212,18 +212,15 @@ impl CachedBool {
 
 impl fmt::Debug for Condition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut dbg = f.debug_tuple("Condition");
         if *self == Condition::DEFAULT {
-            dbg.field(&"DEFAULT");
+            f.write_str("Condition::DEFAULT")
         } else if *self == Condition::ALWAYS {
-            dbg.field(&"ALWAYS");
+            f.write_str("Condition::ALWAYS")
         } else if *self == Condition::NEVER {
-            dbg.field(&"NEVER");
+            f.write_str("Condition::NEVER")
         } else {
-            dbg.field(&self.0);
+            f.debug_tuple("Condition").field(&self.0).finish()
         }
-
-        dbg.finish()
     }
 }
 

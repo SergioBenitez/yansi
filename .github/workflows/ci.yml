@@ -18,19 +18,23 @@ jobs:
           - { name: Linux, distro: ubuntu-latest }
           - { name: Windows, distro: windows-latest }
           - { name: macOS, distro: macOS-latest }
-        toolchain: [nightly, stable]
+        toolchain: [nightly, stable, "1.61"]
 
     steps:
       - name: Checkout Sources
         uses: actions/checkout@v2
 
-      - name: Install Rust
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Rust (${{ matrix.toolchain }})
+        if: matrix.toolchain != 'stable'
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
 
       - name: Install Cargo Hack
-        run: cargo install cargo-hack
+        run: cargo +stable install cargo-hack
         shell: bash
 
       - name: Check Feature Combinations

@@ -42,5 +42,5 @@ jobs:
         shell: bash
 
       - name: Run Tests
-        run: cargo hack test --feature-powerset --skip _nightly
+        run: cargo +stable hack test --feature-powerset --skip _nightly
         shell: bash

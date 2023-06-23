@@ -172,6 +172,34 @@ fn wrapping() {
 }
 
 #[test]
+fn lingering() {
+    let _lock = LOCK.lock().expect("FAIL FAST - LOCK POISONED");
+    yansi::enable();
+
+    assert_eq! {
+        format!("Hello! {} {} things with {} {}?",
+            "How".magenta().underline().linger(),
+            "are".italic(),
+            "you".on_yellow().linger(),
+            "today".blue()),
+        "Hello! \u{1b}[4;35mHow \u{1b}[3mare\u{1b}[0m things with \
+            \u{1b}[43myou \u{1b}[34mtoday\u{1b}[0m?",
+    };
+
+    assert_eq! {
+        format!("Hi! {} {} things with {} {}?",
+            "How".magenta().underline().linger(),
+            "are".italic().linger(),
+            "you".on_yellow().linger(),
+            "today".blue()),
+        "Hi! \u{1b}[4;35mHow \u{1b}[3mare things with \u{1b}[43myou \
+            \u{1b}[34mtoday\u{1b}[0m?"
+    };
+
+    yansi::whenever(Condition::DEFAULT);
+}
+
+#[test]
 fn hash_eq() {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};

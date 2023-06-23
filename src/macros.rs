@@ -307,6 +307,7 @@ define_properties! {
     quirk(Quirk) {
         mask => Quirk::Mask,
         wrap => Quirk::Wrap,
+        linger => Quirk::Linger,
         bright => Quirk::Bright,
         on_bright => Quirk::OnBright,
     },

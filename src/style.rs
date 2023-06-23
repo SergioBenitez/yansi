@@ -1,7 +1,7 @@
 use core::fmt::{self, Write};
 
 use crate::color::{Color, Variant};
-use crate::attribute::{Attribute, Quirk};
+use crate::attr_quirk::{Attribute, Quirk};
 use crate::condition::Condition;
 use crate::set::Set;
 
@@ -112,7 +112,7 @@ impl Style {
     }
 
     /// Returns `true` if this style is enabled, based on
-    /// [`condition`](Paint:condition).
+    /// [`condition`](Paint.condition).
     ///
     /// **Note:** _For a style to be effected, both this method **and**
     /// [`yansi::is_enabled()`](crate::is_enabled) must return `true`._
@@ -250,7 +250,7 @@ impl Style {
     /// }
     /// ```
     pub fn fmt_suffix(&self, f: &mut dyn fmt::Write) -> fmt::Result {
-        if self == &Style::DEFAULT {
+        if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
             return Ok(());
         }
 
@@ -264,7 +264,7 @@ impl Style {
     #[cfg(feature = "alloc")]
     #[cfg_attr(feature = "_nightly", doc(cfg(feature = "alloc")))]
     pub fn suffix_seq(&self) -> Cow<'static, str> {
-        if self == &Style::DEFAULT {
+        if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
             return Cow::from("");
         }
 

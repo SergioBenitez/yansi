@@ -27,23 +27,20 @@ Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
   * This library makes simple things _simple_: `use` [`Paint`] and go!
   * Zero dependencies by default. It really is simple.
   * Zero allocations except as needed by opt-in [wrapping].
-  * [Automatic Windows support] for the vast majority (95%+) of Windows
-    users.
-  * Featureful `no_std`, no-`alloc`, support with `default-features =
-    false`.
+  * [Automatic Windows support] for the vast majority (95%+) of Windows users.
+  * [Featureful `no_std`], no-`alloc`, support with `default-features = false`.
   * [`Style` constructors are `const`]: store styles statically, even with
     dynamic conditions!
-  * _Any_ type implementing a formatting trait can be stylizd, not just
-    strings.
-  * Styling can be [enabled] and [disabled] globally and [dynamically], on
-    the fly.
+  * _Any_ type implementing a formatting trait can be styled, not just strings.
+  * Styling can be [enabled] and [disabled] globally and [dynamically], on the
+    fly.
   * A `Style` can be predicated on arbitrary [conditions].
-  * Formatting specifiers like `{:x}` and `{:08b}` are supported and
-    preserved!
-  * [Built-in (optional) conditions] for [TTY detection] and [common
-    environment variables].
+  * Formatting specifiers like `{:x}` and `{:08b}` are supported and preserved!
+  * [Built-in (optional) conditions] for [TTY detection] and [common environment
+    variables].
   * Arbitrary items can be [_masked_] for selective disabling.
   * Styling can [_wrap_] to preserve styling across resets.
+  * Styling can [_linger_] beyond a single value.
   * Experimental support for [hyperlinking] is included.
   * The name `yansi` is pretty cool 😎.
 
@@ -54,6 +51,7 @@ Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
 [_masked_]: https://docs.rs/yansi/1.0.0-gamma/yansi/#masking
 [wrapping]: https://docs.rs/yansi/1.0.0-gamma/yansi/#wrapping
 [_wrap_]: https://docs.rs/yansi/1.0.0-gamma/yansi/#wrapping
+[_linger_]: https://docs.rs/yansi/1.0.0-gamma/yansi/#lingering
 [conditions]: https://docs.rs/yansi/1.0.0-gamma/yansi/#per-style
 [enabled]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.enable.html
 [disabled]: https://docs.rs/yansi/1.0.0-gamma/yansi/fn.disable.html
@@ -65,6 +63,7 @@ Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
 [Built-in (optional) conditions]: https://docs.rs/yansi/1.0.0-gamma/yansi/struct.Condition.html#built-in-conditions
 [hyperlinking]: https://docs.rs/yansi/1.0.0-gamma/yansi/hyperlink/index.html
 [`Style` constructors are `const`]: https://docs.rs/yansi/1.0.0-gamma/yansi/#uniform-const-builders
+[Featureful `no_std`]: https://docs.rs/yansi/1.0.0-gamma/yansi/#crate-features
 
 ## License
 

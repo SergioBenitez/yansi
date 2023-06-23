@@ -90,7 +90,7 @@ pub enum Attribute {
 /// See the [crate level docs](crate#quirks) for details.
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
 pub enum Quirk {
-    /// Mask the value: don't display it when painting is disabled.
+    /// Mask: omit when painting is disabled.
     ///
     /// Typically applied via the [`mask()`](crate::Painted::mask()) builder
     /// method.
@@ -104,6 +104,13 @@ pub enum Quirk {
     ///
     /// See the [crate level docs](crate#wrapping) for details.
     Wrap,
+    /// Linger: do not clear the style after it is applied.
+    ///
+    /// Typically applied via the [`linger()`](crate::Painted::linger()) builder
+    /// method.
+    ///
+    /// See the [crate level docs](crate#lingering) for details.
+    Linger,
     /// Brighten the foreground color if it is not already bright.
     ///
     /// Typically applied via the [`bright()`](crate::Painted::bright()) builder
@@ -118,7 +125,7 @@ pub enum Quirk {
     /// method.
     ///
     /// See the [crate level docs](crate#brightening) for details.
-    OnBright
+    OnBright,
 }
 
 set_enum! {
@@ -126,7 +133,7 @@ set_enum! {
 }
 
 set_enum! {
-    Quirk { Mask, Wrap, Bright, OnBright }
+    Quirk { Mask, Wrap, Linger, Bright, OnBright }
 }
 
 impl Attribute {

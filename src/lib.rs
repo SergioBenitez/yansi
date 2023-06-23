@@ -2,9 +2,7 @@
 //!
 //! # Features
 //!
-//! Several terminal coloring libraries exist ([`ansi_term`], [`colored`],
-//! [`term_painter`], to name a few), begging the question: why yet another?
-//! Here are a few reasons:
+//! Why *y*et another *ANSI* terminal coloring library? Here are some reasons:
 //!
 //!   * This library makes simple things _simple_: `use` [`Paint`] and go!
 //!   * Zero dependencies by default. It really is simple.
@@ -26,6 +24,7 @@
 //!     environment variables].
 //!   * Arbitrary items can be [_masked_] for selective disabling.
 //!   * Styling can [_wrap_] to preserve styling across resets.
+//!   * Styling can [_linger_] beyond a single value.
 //!   * Experimental support for [hyperlinking] is included.
 //!   * The name `yansi` is pretty cool 😎.
 //!
@@ -37,6 +36,7 @@
 //! [`term_painter`]: https://crates.io/crates/term-painter
 //! [_masked_]: #masking
 //! [_wrap_]: #wrapping
+//! [_linger_]: #lingering
 //! [enabled]: crate::enable
 //! [disabled]: crate::disable
 //! [dynamically]: crate::whenever
@@ -199,6 +199,54 @@
 //! if the wrapped item has styling applied to it. Otherwise, it does not
 //! allocate nor incur a meaningful performance cost.
 //!
+//! ## Lingering
+//!
+//! Styling can _linger_ beyond a single value via [`Quirk::Linger`] or the
+//! equivalent [`linger()`](Painted::linger()) constructor. A lingering style
+//! does not clear itself after being applied. In other words, the style lingers
+//! on beyond the value it's applied to and until something else clears the
+//! respective styling.
+//!
+//! Lingering is useful in situations where a given style is to be repeated
+//! across multiple values, or when style is intended to persist even across
+//! values that are not styled with `yansi`. The examples below illustrate these
+//! scenarios:
+//!
+//! ```rust
+//! use yansi::Paint;
+//!
+//! println!("Hello! {} {} things with {} {}?",
+//!     "How".magenta().underline().linger(),
+//!     "are".italic().linger(),
+//!     "you".on_yellow(), // doesn't linger, so all styling is cleared here
+//!     "today".blue());
+//! ```
+//!
+//! `>` Hello!
+//! <span style="color: magenta;">
+//!   <u>How <i>are things with <span style="background: yellow;">you</span></i></u>
+//! </span>
+//! <span style="color: blue;">today</span>?
+//!
+//! ```rust
+//! use yansi::Paint;
+//!
+//! println!("Hello! {} {} things with {} {}?",
+//!     "How".magenta().underline().linger(),
+//!     "are".italic(), // doesn't linger, so all styling is cleared here
+//!     "you".on_yellow().linger(),
+//!     "today".blue()); // doesn't linger; styling is cleared
+//! ```
+//!
+//! `>` Hello!
+//! <span style="color: magenta;">
+//!   <u>How <i>are</i></u>
+//! </span>
+//! things with
+//! <span style="background: yellow;">
+//! you
+//! <span style="color: blue;">today</span></span>?
+//!
 //! ## Brightening
 //!
 //! Most pimrary colors are available in regular and _bright_ variants, e.g.,
@@ -277,7 +325,7 @@ extern crate alloc;
 #[macro_use]
 mod macros;
 mod windows;
-mod attribute;
+mod attr_quirk;
 mod style;
 mod color;
 mod paint;
@@ -290,7 +338,7 @@ mod set;
 pub mod hyperlink;
 
 pub use paint::{Painted, Paint};
-pub use attribute::{Attribute, Quirk};
+pub use attr_quirk::{Attribute, Quirk};
 pub use style::Style;
 pub use color::Color;
 pub use condition::Condition;

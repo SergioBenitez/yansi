@@ -17,7 +17,7 @@ impl<T: SetMember> Set<T> {
         (value.bit_mask() & self.1) == value.bit_mask()
     }
 
-    pub fn iter(self) -> Iter<T> {
+    pub const fn iter(self) -> Iter<T> {
         Iter { index: 0, set: self }
     }
 }

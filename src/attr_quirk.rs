@@ -111,6 +111,13 @@ pub enum Quirk {
     ///
     /// See the [crate level docs](crate#lingering) for details.
     Linger,
+    /// Always clear styling afterwards, even if no actual styling was applied.
+    ///
+    /// Overrides the [`Linger`](Quirk::Linger) quirk if present.
+    ///
+    /// Typically applied via the [`clear()`](crate::Painted::clear()) builder
+    /// method.
+    Clear,
     /// Brighten the foreground color if it is not already bright.
     ///
     /// Typically applied via the [`bright()`](crate::Painted::bright()) builder
@@ -133,7 +140,7 @@ set_enum! {
 }
 
 set_enum! {
-    Quirk { Mask, Wrap, Linger, Bright, OnBright }
+    Quirk { Mask, Wrap, Linger, Clear, Bright, OnBright }
 }
 
 impl Attribute {

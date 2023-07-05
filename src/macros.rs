@@ -12,7 +12,8 @@ macro_rules! set_enum {
         }
 
         impl crate::set::Set<$T> {
-            pub const fn union(mut self, value: $T) -> Self {
+            #[must_use]
+            pub const fn insert(mut self, value: $T) -> Self {
                 self.1 |= value.bit_mask();
                 self
             }
@@ -308,6 +309,7 @@ define_properties! {
         mask => Quirk::Mask,
         wrap => Quirk::Wrap,
         linger => Quirk::Linger,
+        clear => Quirk::Clear,
         bright => Quirk::Bright,
         on_bright => Quirk::OnBright,
     },

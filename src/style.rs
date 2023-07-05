@@ -104,8 +104,8 @@ impl Style {
             Application::fg(color) => self.foreground = Some(color),
             Application::bg(color) => self.background = Some(color),
             Application::whenever(cond) => self.condition = Some(cond),
-            Application::attr(attr) => self.attributes = self.attributes.union(attr),
-            Application::quirk(quirk) => self.quirks = self.quirks.union(quirk),
+            Application::attr(attr) => self.attributes = self.attributes.insert(attr),
+            Application::quirk(quirk) => self.quirks = self.quirks.insert(quirk),
         }
 
         self
@@ -209,7 +209,7 @@ impl Style {
     /// [`fmt_prefix()`](Self::fmt_prefix()). See that method for details.
     #[cfg(feature = "alloc")]
     #[cfg_attr(feature = "_nightly", doc(cfg(feature = "alloc")))]
-    pub fn prefix_seq(&self) -> Cow<'static, str> {
+    pub fn prefix(&self) -> Cow<'static, str> {
         let mut prefix = String::new();
         let _ = self.fmt_prefix(&mut prefix);
         prefix.into()
@@ -250,8 +250,10 @@ impl Style {
     /// }
     /// ```
     pub fn fmt_suffix(&self, f: &mut dyn fmt::Write) -> fmt::Result {
-        if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
-            return Ok(());
+        if !self.quirks.contains(Quirk::Clear) {
+            if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
+                return Ok(());
+            }
         }
 
         f.write_str("\x1B[0m")
@@ -263,9 +265,11 @@ impl Style {
     /// [`fmt_suffix()`](Self::fmt_suffix()). See that method for details.
     #[cfg(feature = "alloc")]
     #[cfg_attr(feature = "_nightly", doc(cfg(feature = "alloc")))]
-    pub fn suffix_seq(&self) -> Cow<'static, str> {
-        if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
-            return Cow::from("");
+    pub fn suffix(&self) -> Cow<'static, str> {
+        if !self.quirks.contains(Quirk::Clear) {
+            if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
+                return Cow::from("");
+            }
         }
 
         Cow::from("\x1B[0m")

@@ -1,9 +1,0 @@
-language: rust
-matrix:
-  include:
-  - rust: stable
-    script: cargo build --all --all-features --verbose
-  - rust: beta
-    script: cargo build --all --all-features --verbose
-  - rust: nightly
-    script: cargo test --all --all-features --verbose

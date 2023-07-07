@@ -1,6 +1,9 @@
 #[cfg(windows)]
 mod windows_console {
-    use std::os::raw::c_void;
+    use core::ffi::c_void;
+    use core::sync::atomic::{AtomicBool, Ordering};
+
+    use crate::condition::CachedBool;
 
     #[allow(non_camel_case_types)] type c_ulong = u32;
     #[allow(non_camel_case_types)] type c_int = i32;
@@ -55,15 +58,29 @@ mod windows_console {
         Ok(true)
     }
 
-    #[inline]
-    pub fn enable_ansi_colors() -> bool {
+    #[inline(always)]
+    pub fn enable() -> bool {
         unsafe { enable_ansi_colors_raw().unwrap_or(false) }
+    }
+
+    // Try to enable colors on Windows, and try to do it at most once.
+    pub fn cache_enable() -> bool {
+        static ENABLED: CachedBool = CachedBool::new();
+        *ENABLED.get_or_set(enable)
     }
 }
 
 #[cfg(not(windows))]
 mod windows_console {
-    pub fn enable_ansi_colors() -> bool { true }
+    #[inline(always)]
+    #[allow(dead_code)]
+    pub fn enable() -> bool { true }
+
+    // Try to enable colors on Windows, and try to do it at most once. It's okay
+    // if we try more than once. We only try when painting is enabled.
+    #[inline(always)]
+    pub fn cache_enable() -> bool { true }
 }
 
-pub use self::windows_console::enable_ansi_colors;
+// pub use self::windows_console::enable;
+pub use self::windows_console::cache_enable;

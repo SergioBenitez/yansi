@@ -9,7 +9,7 @@ keywords = ["ansi", "terminal", "color", "format", "paint"]
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 categories = ["command-line-interface"]
-rust-version = "1.61"
+rust-version = "1.63"
 edition = "2021"
 
 [package.metadata.docs.rs]

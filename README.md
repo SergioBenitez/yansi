@@ -1,6 +1,6 @@
 # `yansi`
 
-[![Build Status](https://travis-ci.org/SergioBenitez/yansi.svg?branch=master)](https://travis-ci.org/SergioBenitez/yansi)
+[![Build Status](https://github.com/SergioBenitez/yansi/workflows/CI/badge.svg)](https://github.com/SergioBenitez/yansi/actions)
 [![Current Crates.io Version](https://img.shields.io/crates/v/yansi.svg)](https://crates.io/crates/yansi)
 [![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi)
 

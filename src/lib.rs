@@ -106,9 +106,10 @@
 //! [`enable()`] and [`disable()`]. When styling is disabled, no ANSI escape
 //! codes are emitted, and [_masked_] values are omitted.
 //!
-//! Stying can also be _conditionally_ globally enabled via [`whenever()`]
-//! based on an arbitrary and dynamic [`Condition`]: a function that returns
-//! `true` to enable styling and `false` to disable it.
+//! Stying can also be globally enabled _conditionally_ and dynamically  via
+//! [`whenever()`] based on an arbitrary [`Condition`]: a function that returns
+//! `true` to enable styling and `false` to disable it. The condition is
+//! evaluated every time a [`Painted`] items is displayed.
 //!
 //! ### Per-`Style`
 //!
@@ -207,10 +208,17 @@
 //! on beyond the value it's applied to and until something else clears the
 //! respective styling.
 //!
-//! Lingering is useful in situations where a given style is to be repeated
-//! across multiple values, or when style is intended to persist even across
-//! values that are not styled with `yansi`. The examples below illustrate these
-//! scenarios:
+//! The complement to lingering is force clearing via [`Quirk::Clear`] or the
+//! equivalent [`clear()`](Painted::clear()) constructor. Force clearing, as the
+//! name implies, forces a clear suffix to be emitted after the value,
+//! irrespective of any lingering applied. It can be used as a way to finalize a
+//! lingering style.
+//!
+//! Lingering itself is useful in situations where a given style is to be
+//! repeated across multiple values, or when style is intended to persist even
+//! across values that are not styled with `yansi`. It also allows avoiding
+//! unnecessarily repeated ANSI code sequences. The examples below illustrate
+//! some scenarios in which lingering is useful:
 //!
 //! ```rust
 //! use yansi::Paint;
@@ -246,6 +254,18 @@
 //! <span style="background: yellow;">
 //! you
 //! <span style="color: blue;">today</span></span>?
+//!
+//! ```rust
+//! use yansi::Paint;
+//!
+//! println!("{} B {} {} {} F",
+//!     "A".red().linger(),
+//!     "C".underline().linger(),
+//!     "D", // doesn't linger, but no styling applied, thus no clear
+//!     "E".clear());  // explicitly clear
+//! ```
+//!
+//! `>` <span style="color: red;"> A B <u>C D E</u> </span> F
 //!
 //! ## Brightening
 //!

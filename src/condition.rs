@@ -4,6 +4,19 @@ use core::sync::atomic::{AtomicPtr, Ordering};
 
 /// A function that decides whether styling should be applied.
 ///
+/// A styling `Condition` can be specified globally via
+/// [`yansi::whenever()`](crate::whenever()) or locally to a specific style via
+/// the [`whenever()`](crate::Style::whenever()) builder method. Any time a
+/// [`Painted`](crate::Painted) value is formatted, both the local and global
+/// conditions are checked, and only when both evaluate to `true` is styling
+/// actually applied.
+///
+/// A `Condition` is nothing more than a function that returns a `bool`. The
+/// function is called each and every time a `Painted` is formatted, and so it
+/// is expected to be fast. All of the built-in conditions (except for their
+/// "live" variants) cache their first evaluation as a result: the
+/// [`Condition::cached()`] constructor can do the same for your conditions.
+///
 /// # Built-In Conditions
 ///
 /// `yansi` comes with built-in conditions for common scenarios that can be
@@ -21,6 +34,21 @@ use core::sync::atomic::{AtomicPtr, Ordering};
 ///
 /// ```toml
 /// yansi = { version = "...", features = ["detect-tty"] }
+/// ```
+///
+/// To enable the TTY detectors, env-var checkers, and combo detectors, enable
+/// `detect-tty` _and_ `detect-env`:
+///
+/// ```toml
+/// yansi = { version = "...", features = ["detect-tty", "detect-env"] }
+/// ```
+///
+/// ```rust
+/// # #[cfg(all(feature = "detect-tty", feature = "detect-env"))] {
+/// use yansi::Condition;
+///
+/// yansi::whenever(Condition::TTY_AND_COLOR);
+/// # }
 /// ```
 ///
 /// [TTY detectors]: Condition#impl-Condition-1
@@ -61,9 +89,9 @@ pub struct CachedBool(AtomicU8);
 impl Condition {
     /// A condition that evaluates to `true` if the OS supports coloring.
     ///
-    /// On Windows, this condition tries to enable coloring support on the first
-    /// call and caches the result for subsequent calls. Outside of Windows,
-    /// this always evaluates to `true`.
+    /// Uses [`Condition::os_support()`]. On Windows, this condition tries to
+    /// enable coloring support on the first call and caches the result for
+    /// subsequent calls. Outside of Windows, this always evaluates to `true`.
     pub const DEFAULT: Condition = Condition(Condition::os_support);
 
     /// A condition that always evaluates to `true`.
@@ -136,8 +164,9 @@ impl Condition {
     /// The backing function for [`Condition::DEFAULT`].
     ///
     /// Returns `true` if the current OS supports ANSI escape sequences for
-    /// coloring. On Windows, the first call to this function attempts to enable
-    /// support. Outside of windows, this always returns `true`.
+    /// coloring. Outside of Windows, this always returns `true`. On Windows,
+    /// the first call to this function attempts to enable support and returns
+    /// whether it was successful every time thereafter.
     pub fn os_support() -> bool {
         crate::windows::cache_enable()
     }

@@ -15,7 +15,7 @@ use std::borrow::Cow;
 ///
 /// ## Equivalence and Ordering
 ///
-/// Only a style's `foreground`, `background`, and set of `attributes` is
+/// Only a style's `foreground`, `background`, and set of `attributes` are
 /// considered when testing for equivalence or producing an ordering via
 /// `PartialEq` or `Eq`, and `PartialOrd` or `Ord`. A style's quirks and
 /// conditions are ignored.

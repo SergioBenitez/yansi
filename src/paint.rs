@@ -17,7 +17,7 @@ use crate::{Color, Attribute, Quirk, Style, Condition};
 /// whether styling sequences are actually emitted: both must evaluated to true.
 /// Otherwise, no styling sequences are emitted.
 ///
-/// ```rust,no_run
+/// ```rust
 /// use yansi::{Paint, Condition};
 ///
 /// println!("Hello, {}!", "world".red().underline().blink());

@@ -6,7 +6,7 @@ static ENABLED: AtomicCondition = AtomicCondition::DEFAULT;
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```rust
 /// use yansi::Paint;
 ///
 /// // With styling enabled, ANSI color codes are emitted, thus `ne`.
@@ -27,7 +27,7 @@ pub fn disable() {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```rust
 /// use yansi::Paint;
 ///
 /// // With styling disabled, ANSI color codes are _not_ emitted.

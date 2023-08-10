@@ -36,7 +36,7 @@ macro_rules! constructor {
         ///
         /// # Example
         ///
-        /// ```rust,no_run
+        /// ```rust
         #[doc = concat!(
             "# let value = yansi::Painted::new(0);",
             $($("\n# let ", stringify!($a), " = 0;"),+)?
@@ -70,7 +70,7 @@ macro_rules! signature {
         ///
         /// # Example
         ///
-        /// ```rust,no_run
+        /// ```rust
         #[doc = concat!(
             "# let value = yansi::Painted::new(0);",
             $($("\n# let ", stringify!($a), " = 0;"),+)?

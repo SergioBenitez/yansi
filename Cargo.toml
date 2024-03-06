@@ -11,6 +11,7 @@ license = "MIT OR Apache-2.0"
 categories = ["command-line-interface"]
 rust-version = "1.63"
 edition = "2021"
+resolver = "2"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -27,4 +28,4 @@ alloc = []
 _nightly = []
 
 [dependencies]
-is-terminal = { version = "0.4.7", optional = true }
+is-terminal = { version = "0.4.11", optional = true }

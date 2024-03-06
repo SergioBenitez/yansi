@@ -1,6 +1,6 @@
 [package]
 name = "yansi"
-version = "1.0.0-rc.1"
+version = "1.0.0"
 authors = ["Sergio Benitez <sb@sergio.bz>"]
 repository = "https://github.com/SergioBenitez/yansi"
 documentation = "https://docs.rs/yansi"

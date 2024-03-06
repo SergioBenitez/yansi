@@ -5,12 +5,15 @@ on: [push, pull_request]
 env:
   CARGO_TERM_COLOR: always
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test:
     name: "${{ matrix.os.name }} ${{ matrix.test.name }} (${{ matrix.toolchain }})"
     continue-on-error: false
     runs-on: ${{ matrix.os.distro }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -19,28 +22,20 @@ jobs:
           - { name: Windows, distro: windows-latest }
           - { name: macOS, distro: macOS-latest }
         toolchain: [nightly, stable, "1.63"]
-
     steps:
       - name: Checkout Sources
-        uses: actions/checkout@v3
-
-      - name: Install Rust (stable)
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions/checkout@v4
 
       - name: Install Rust (${{ matrix.toolchain }})
-        if: matrix.toolchain != 'stable'
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.toolchain }}
 
       - name: Install Cargo Hack
-        run: cargo +stable install cargo-hack
-        shell: bash
+        uses: taiki-e/install-action@cargo-hack
 
       - name: Check Feature Combinations
         run: cargo hack check --feature-powerset --no-dev-deps --skip _nightly
-        shell: bash
 
       - name: Run Tests
-        run: cargo +stable hack test --feature-powerset --skip _nightly
-        shell: bash
+        run: cargo hack test --feature-powerset --skip _nightly

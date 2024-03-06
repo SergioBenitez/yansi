@@ -1,10 +1,24 @@
-# `yansi`
+<div align="left">
+  <img src="https://raw.githubusercontent.com/SergioBenitez/yansi/master/.github/yansi-logo.png"
+    align="center" alt="yansi logo" width="64" height="64">
+  <span>&nbsp;<b>Yansi</b></span>
+  <p>A dead simple ANSI terminal color painting library.</p>
 
-[![Build Status](https://github.com/SergioBenitez/yansi/workflows/CI/badge.svg)](https://github.com/SergioBenitez/yansi/actions)
-[![Current Crates.io Version](https://img.shields.io/crates/v/yansi.svg)](https://crates.io/crates/yansi)
-[![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi)
+  [![Build Status](https://github.com/SergioBenitez/yansi/workflows/CI/badge.svg)](https://github.com/SergioBenitez/yansi/actions)
+  [![Current Crates.io Version](https://img.shields.io/crates/v/yansi.svg)](https://crates.io/crates/yansi)
+  [![Documentation](https://docs.rs/yansi/badge.svg)](https://docs.rs/yansi)
+</div>
 
-A dead simple ANSI terminal color painting library.
+## Usage
+
+In your `Cargo.toml`:
+
+```toml
+[dependencies]
+yansi = "1.0"
+```
+
+In your source code:
 
 ```rust
 use yansi::Paint;
@@ -15,10 +29,9 @@ println!("Testing, {}, {}, {}!",
     "STOP".white().on_red().bright().underline().bold());
 ```
 
-`>` Testing,
-  <b>Ready</b>,
-  <span style="color: yellow; background: black;"><i><b>Set</b></i></span>,
-  <span style="color: white; background: red;"><u><b>STOP</b></u></span>!
+![> Testing, Ready, Set, STOP!](https://raw.githubusercontent.com/SergioBenitez/yansi/master/.github/yansi-example.svg)
+
+[See the rustdocs](https://docs.rs/yansi) for complete usage details.
 
 ## Features
 

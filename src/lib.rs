@@ -75,16 +75,16 @@
 //!
 //! ## Uniform `const` Builders
 //!
-//! The builder methods are uniformly available for [`Style`], [`Color`], and
-//! [`Painted`], which means you can chain calls across library types. They are
-//! also `const`, allowing creations of `const` or `static` styles which can be
-//! directly applied via the [`paint()`](Paint::paint()) method, also from the
-//! [`Paint`] trait and thus available for every type:
+//! All builder methods are uniformly available for [`Style`], [`Color`], and
+//! [`Painted`], which means you can chain calls across library types. All
+//! methods are `const`, allowing creations of `const` or `static` [`Style`]s. A
+//! `Style` can be directly applied to values with [`.paint()`](Paint::paint()),
+//! from [`Paint::paint()`], available for every type:
 //!
 //! ```rust
 //! use yansi::{Paint, Style, Color::*};
 //!
-//! // `const` constructors allow static `Style` for easy reuse.
+//! // `const` constructors allow static `Style`s for easy reuse
 //! static ALERT: Style = White.bright().underline().italic().on_red();
 //!
 //! println!("Testing, {}, {}, {}!",
@@ -104,17 +104,18 @@
 //!
 //! Styling is enabled by default but can be enabled and disabled globally via
 //! [`enable()`] and [`disable()`]. When styling is disabled, no ANSI escape
-//! codes are emitted, and [_masked_] values are omitted.
+//! codes are emitted, and [_masked_] values are omitted entirely.
 //!
-//! Stying can also be globally enabled _conditionally_ and dynamically  via
-//! [`whenever()`] based on an arbitrary [`Condition`]: a function that returns
-//! `true` to enable styling and `false` to disable it. The condition is
-//! evaluated every time a [`Painted`] items is displayed.
+//! Global styling can also be dynamically enabled and disabled using
+//! [`whenever()`] with an arbitrary [`Condition`]: a function that returns
+//! `true` or `false`. This condition is evaluated each time a [`Painted`] item
+//! is displayed. The associated styling is enabled, and mask values emitted,
+//! exactly when and only when the condition returns `true`.
 //!
 //! ### Per-`Style`
 //!
-//! A specific `Style` can also itself be conditionally applied by using
-//! [`whenever()`](Style::whenever()):
+//! A specific `Style` can itself be conditionally applied by using
+//! [`.whenever()`](Style::whenever()):
 //!
 //! ```rust
 //! # #[cfg(feature = "detect-tty")] {
@@ -137,9 +138,10 @@
 //!
 //! # Quirks
 //!
-//! `yansi` implements several "quirks", applicable via [`Quirk`] and the
-//! respective methods, that modify if and how styling is presented to the
-//! terminal. These quirks do not correspond to any ANSI styling sequences.
+//! As a convenience, `yansi` implements several "quirks", applicable via
+//! [`Quirk`] and the respective methods, that modify if and how styling is
+//! presented to the terminal. These quirks do not correspond to any ANSI
+//! styling sequences.
 //!
 //! ## Masking
 //!
@@ -171,11 +173,13 @@
 //! [`wrap()`](Painted::wrap()) constructor. A wrapping style modifies any
 //! styling resets emitted by the internal value so that they correspond to the
 //! wrapping style. In other words, the "reset" style of the wrapped item is
-//! modified to be the wrapping style.
+//! modified to be the style being `.wrap()`d.
 //!
-//! It is needed only in situations when styling opaque items or items that may
-//! already be styled, such as when implementing a generic logger. It exists to
-//! enable consistent styling across such items:
+//! Wrapping is useful in situations where opaque and arbitrary values must be
+//! styled consistently irrespective of any existing styling. For example, a
+//! generic logger might want to style messages based on log levels
+//! consistently, even when those messages may already include styling. Wrapping
+//! exists to enable such consistent styling:
 //!
 //! ```rust
 //! use yansi::Paint;
@@ -193,19 +197,19 @@
 //! <span style="color: green">Go</span>
 //! </span>
 //!
-//! Without wrapping, the `red()` reset after "Stop" is not overwritten:
+//! Without wrapping, the reset after `"Stop".red()` would not be overwritten:
 //! `>` Hey! <span style="color: red">Stop</span> and <span style="color: green">Go</span>
 //!
-//! Wrapping incurs a performance cost via an extra allocation and replacement
-//! if the wrapped item has styling applied to it. Otherwise, it does not
-//! allocate nor incur a meaningful performance cost.
+//! Wrapping incurs a performance cost due to an extra allocation and
+//! replacement if the wrapped item has styling applied to it. Otherwise, it
+//! does not allocate nor incur a meaningful performance cost.
 //!
 //! ## Lingering
 //!
 //! Styling can _linger_ beyond a single value via [`Quirk::Linger`] or the
 //! equivalent [`linger()`](Painted::linger()) constructor. A lingering style
 //! does not clear itself after being applied. In other words, the style lingers
-//! on beyond the value it's applied to and until something else clears the
+//! on beyond the value it's applied to, until something else clears the
 //! respective styling.
 //!
 //! The complement to lingering is force clearing via [`Quirk::Clear`] or the
@@ -272,7 +276,7 @@
 //! Most pimrary colors are available in regular and _bright_ variants, e.g.,
 //! [`Color::Red`] and [`Color::BrightRed`]. The [`Quirk::Bright`] and
 //! [`Quirk::OnBright`] quirks, typically applied via
-//! [`bright()`](Painted::bright()) and [`on_bright()`](Painted::on_bright()),
+//! [`.bright()`](Painted::bright()) and [`.on_bright()`](Painted::on_bright()),
 //! provide an alternative, convenient mechanism to select the bright variant of
 //! the selected foreground or background color, respectively. The quirk
 //! provides no additional colors and is equivalent to selecting the bright
@@ -307,14 +311,14 @@
 //! # Windows
 //!
 //! Styling is supported and enabled automatically on Windows beginning with
-//! the Windows 10 Anniversary Update, or about [95% of all Windows machines
+//! the Windows 10 Anniversary Update, or about [96% of all Windows machines
 //! worldwide](https://gs.statcounter.com/os-version-market-share/windows/desktop/worldwide),
 //! and likely closer to 100% of developer machines (e.g., 99% of visitors to
 //! [rocket.rs](https://rocket.rs) on Windows are on Windows 10+).
 //!
 //! Yansi enables styling support on Windows by querying the Windows API on the
 //! first attempt to color. If support is available, it is enabled. If support
-//! is not available, styling is disabled and no styling is emitted.
+//! is not available, styling is disabled and no styling sequences are emitted.
 //!
 //! # Crate Features
 //!
@@ -326,15 +330,16 @@
 //! | `detect-env` | N        | `std`        | See [optional conditions].       |
 //! | `hyperlink`  | N        | `std`        | Enables [hyperlinking] support.  |
 //!
-//! With `no-default-features = true`, this crate is `#[no_std]`.
+//! With `default-features = false`, this crate is `#[no_std]`.
 //!
 //! Without any features enabled, all functionality except [wrapping] is
-//! available. To recover wrapping _with_ `#[no_std]`, set `no-default-features
-//! = false` and enable the `alloc` feature, which requires `alloc` support.
+//! available. To recover wrapping _with_ `#[no_std]`, set `default-features =
+//! false` and enable the `alloc` feature, which requires `alloc` support.
 //!
 //! [optional conditions]: Condition#built-in-conditions
 //! [wrapping]: #wrapping
 
+#![doc(html_logo_url = "https://raw.githubusercontent.com/SergioBenitez/yansi/master/.github/yansi-logo.png")]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "_nightly", feature(doc_cfg))]
 #![deny(missing_docs)]

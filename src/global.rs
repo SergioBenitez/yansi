@@ -42,7 +42,7 @@ pub fn enable() {
     ENABLED.store(Condition::ALWAYS);
 }
 
-/// Dynamically enables styling globally based on `condition`.
+/// Dynamically enables and disables styling globally based on `condition`.
 ///
 /// `condition` is expected to be fast: it is checked dynamically, each time a
 /// [`Painted`](crate::Painted) value is displayed.

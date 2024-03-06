@@ -38,9 +38,57 @@ pub struct Painted<T> {
     pub style: Style,
 }
 
-/// A trait to apply styling to any value, implemented for all types.
+/// A trait to apply styling to any value. Implemented for all types.
 ///
-/// See the [crate level docs](crate#usage) for usage details.
+/// Because this trait is implemented for all types, you can use its methods on
+/// any type. With the exception of one constructor method, [`Paint::new()`],
+/// all methods are called with method syntax:
+///
+/// ```rust
+/// use yansi::Paint;
+///
+/// "hello".green(); // calls `Paint::<&'static str>::green()`.
+/// "hello".strike(); // calls `Paint::<&'static str>::strike()`.
+/// 1.on_red(); // calls `Paint::<i32>::red()`.
+/// 1.blink(); // calls `Paint::<i32>::blink()`.
+/// ```
+///
+/// ### Chaining
+///
+/// All methods return a [`Painted`] whose methods are exactly those of `Paint`.
+/// This means you can chain `Paint` method calls:
+///
+/// ```rust
+/// use yansi::Paint;
+///
+/// "hello".green().strike(); // calls `Paint::green()` then `Painted::strike()`.
+/// 1.on_red().blink(); // calls `Paint::red()` + `Painted::blink()`.
+/// ```
+///
+/// ### Borrow vs. Owned Receiver
+///
+/// The returned [`Painted`] type contains a borrow to the receiver:
+///
+/// ```rust
+/// use yansi::{Paint, Painted};
+///
+/// let v: Painted<&i32> = 1.red();
+/// ```
+///
+/// This is nearly always what you want. In the exceedingly rare case that you
+/// _do_ want `Painted` to own its value, use [`Paint::new()`] or the equivalent
+/// [`Painted::new()`]:
+///
+/// ```rust
+/// use yansi::{Paint, Painted};
+///
+/// let v: Painted<i32> = Paint::new(1);
+/// let v: Painted<i32> = Painted::new(1);
+/// ```
+///
+/// ### Further Details
+///
+/// See the [crate level docs](crate#usage) for more details and examples.
 pub trait Paint {
     /// Create a new [`Painted`] with a default [`Style`].
     ///

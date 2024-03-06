@@ -2,7 +2,7 @@
 //!
 //! # Usage
 //!
-//! Enable the `hyperlink` crate feature. Enabling the feature implicitly
+//! Enable the `hyperlink` crate feature. Enabling `hyperlink` implicitly
 //! enables `std`.
 //!
 //! Import the `HyperlinkExt` extension trait and use the [`link()`] builder

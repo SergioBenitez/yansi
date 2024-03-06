@@ -57,7 +57,7 @@ use core::sync::atomic::{AtomicPtr, Ordering};
 ///
 /// # Custom Conditions
 ///
-/// Custom, arbitrary conditions can be creared via [`Condition::from()`] or
+/// Custom, arbitrary conditions can be created with [`Condition::from()`] or
 /// [`Condition::cached()`].
 ///
 /// ```rust

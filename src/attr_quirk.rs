@@ -17,9 +17,9 @@ use crate::Style;
 /// the terminal's configuration. Common attributes, such as `bold`, `dim`,
 /// `italic`, `underline`, and `strike` typically have good support and are
 /// largely reliable. Less commonly supported attributes like `conceal` and
-/// `invert` will _usually_ be supported by "modern" terminals. Rarely supprted
-/// attributes, like  `blink` and `rapid blink` will usually have no effect when
-/// applied.
+/// `invert` will _usually_ be supported by "modern" terminals. Rarely supported
+/// attributes, such as  `blink` and `rapid blink`, will typically have no
+/// effect when applied.
 ///
 /// # Example
 ///

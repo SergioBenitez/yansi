@@ -196,6 +196,24 @@ fn lingering() {
             \u{1b}[34mtoday\u{1b}[0m?"
     };
 
+    assert_eq! {
+        format!("{} B {} {} {} F",
+            "A".red().linger(),
+            "C".underline().linger(),
+            "D", // doesn't linger, but no styling applied, thus no reset
+            "E".resetting()),  // explicitly reset
+        "\u{1b}[31mA B \u{1b}[4mC D E\u{1b}[0m F"
+    };
+
+    assert_eq! {
+        format!("{} B {} {} {} F",
+            "A".red().linger(),
+            "C".underline().linger(),
+            "D", // doesn't linger, but no styling applied, thus no reset
+            "E".clear()),  // explicitly reset
+        "\u{1b}[31mA B \u{1b}[4mC D E\u{1b}[0m F"
+    };
+
     yansi::whenever(Condition::DEFAULT);
 }
 

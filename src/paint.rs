@@ -177,7 +177,7 @@ impl<T> Painted<T> {
     }
 
     #[cfg(feature = "alloc")]
-    pub(crate) fn clear_fmt_args(
+    pub(crate) fn reset_fmt_args(
         &self,
         fmt: &dyn Fn(&T, &mut fmt::Formatter) -> fmt::Result,
         f: &mut fmt::Formatter,
@@ -254,7 +254,7 @@ impl<T> Painted<T> {
         match (enabled, masked, self.style.quirks.contains(Quirk::Wrap)) {
             (true, _, true) => self.color_wrap_fmt_args(fmt, f, &_args),
             (true, _, false) => self.color_fmt_value(fmt, f),
-            (false, false, true) => self.clear_fmt_args(fmt, f, &_args),
+            (false, false, true) => self.reset_fmt_args(fmt, f, &_args),
             (false, false, false) => fmt(&self.value, f),
             (false, true, _) => Ok(()),
         }

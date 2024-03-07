@@ -250,7 +250,7 @@ impl Style {
     /// }
     /// ```
     pub fn fmt_suffix(&self, f: &mut dyn fmt::Write) -> fmt::Result {
-        if !self.quirks.contains(Quirk::Clear) {
+        if !self.quirks.contains(Quirk::Resetting) && !self.quirks.contains(Quirk::Clear) {
             if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
                 return Ok(());
             }
@@ -266,7 +266,7 @@ impl Style {
     #[cfg(feature = "alloc")]
     #[cfg_attr(feature = "_nightly", doc(cfg(feature = "alloc")))]
     pub fn suffix(&self) -> Cow<'static, str> {
-        if !self.quirks.contains(Quirk::Clear) {
+        if !self.quirks.contains(Quirk::Resetting) && !self.quirks.contains(Quirk::Clear) {
             if self.quirks.contains(Quirk::Linger) || self == &Style::DEFAULT {
                 return Cow::from("");
             }

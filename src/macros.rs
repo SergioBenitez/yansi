@@ -28,7 +28,10 @@ macro_rules! set_enum {
 }
 
 macro_rules! constructor {
-    ([$($q:tt)*] $r:ty, $R:ty, $p:ident, $prop:ident => $V:path $([$($a:ident : $T:ty),+])?) => {
+    (
+        [$($q:tt)*] $r:ty, $R:ty, $p:ident,
+        $(#[$pattr:meta])* $prop:ident => $V:path $([$($a:ident : $T:ty),+])?
+    ) => {
         /// Returns `self` with the
         #[doc = concat!("[`", stringify!($p), "()`](Self::", stringify!($p), "())")]
         /// set to
@@ -46,6 +49,7 @@ macro_rules! constructor {
         )]
         /// ```
         #[inline]
+        $(#[$pattr])*
         $($q)* fn $prop(self: $r $($(,$a: $T)+)?) -> $R {
             let v = $V $(($($a),*))?;
             self.apply(crate::style::Application::$p(v))
@@ -62,7 +66,10 @@ macro_rules! constructor {
 }
 
 macro_rules! signature {
-    ([$($q:tt)*] $r:ty, $R:ty, $p:ident, $prop:ident => $V:path $([$($a:ident : $T:ty),+])?) => {
+    (
+        [$($q:tt)*] $r:ty, $R:ty, $p:ident,
+        $(#[$pattr:meta])* $prop:ident => $V:path $([$($a:ident : $T:ty),+])?
+    ) => {
         /// Returns `self` with the
         #[doc = concat!("[`", stringify!($p), "()`](Self::", stringify!($p), "())")]
         /// set to
@@ -79,6 +86,7 @@ macro_rules! signature {
             "println!(\"{}\", value.", stringify!($prop), "(", $(stringify!($($a),+),)? "));"
         )]
         /// ```
+        $(#[$pattr])*
         $($q)* fn $prop(self: $r $($(,$a: $T)+)?) -> $R;
     };
 
@@ -90,14 +98,17 @@ macro_rules! signature {
 
 macro_rules! define_property {
     ([$d:tt] $(#[$attr:meta])* $kind:ident ($A:ty) {
-        $($prop:ident => $V:path $([$($a:tt)*])?),* $(,)?
+        $($(#[$pattr:meta])* $prop:ident => $V:path $([$($a:tt)*])?),* $(,)?
     }) => {
         macro_rules! $kind {
             ($d ([$d ($qual:tt)*])? $cont:ident ($r:ty) -> $R:ty) => (
                 $cont!([$d ($d ($qual)*)?] $(#[$attr])* $r, $R, $kind($A));
 
                 $(
-                    $cont!([$d ($d ($qual)*)?] $r, $R, $kind, $prop => $V $([$($a)*] )?);
+                    $cont!(
+                        [$d ($d ($qual)*)?]
+                        $r, $R, $kind, $(#[$pattr])* $prop => $V $([$($a)*] )?
+                    );
                 )*
             )
         }
@@ -112,7 +123,7 @@ macro_rules! define_property {
 
 // Check that every variant of a property is covered.
 macro_rules! check_property_exhaustiveness {
-    ($A:ident $({ $( $p:ident => $V:path $([ $($a:tt)* ])?),* $(,)? })? ) => {
+    ($A:ident $({ $($(#[$pattr:meta])* $p:ident => $V:path $([ $($a:tt)* ])?),* $(,)? })? ) => {
         const _: () = {$(
             use crate::*;
             fn _check() {
@@ -309,7 +320,13 @@ define_properties! {
         mask => Quirk::Mask,
         wrap => Quirk::Wrap,
         linger => Quirk::Linger,
+        #[deprecated(
+            since = "1.0.1",
+            note = "renamed to `resetting()` due to conflicts with `Vec::clear()`.\n\
+                The `clear()` method will be removed in a future release."
+        )]
         clear => Quirk::Clear,
+        resetting => Quirk::Resetting,
         bright => Quirk::Bright,
         on_bright => Quirk::OnBright,
     },

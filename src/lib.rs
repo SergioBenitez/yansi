@@ -208,15 +208,15 @@
 //!
 //! Styling can _linger_ beyond a single value via [`Quirk::Linger`] or the
 //! equivalent [`linger()`](Painted::linger()) constructor. A lingering style
-//! does not clear itself after being applied. In other words, the style lingers
-//! on beyond the value it's applied to, until something else clears the
+//! does not reset itself after being applied. In other words, the style lingers
+//! on beyond the value it's applied to, until something else resets the
 //! respective styling.
 //!
-//! The complement to lingering is force clearing via [`Quirk::Clear`] or the
-//! equivalent [`clear()`](Painted::clear()) constructor. Force clearing, as the
-//! name implies, forces a clear suffix to be emitted after the value,
-//! irrespective of any lingering applied. It can be used as a way to finalize a
-//! lingering style.
+//! The complement to lingering is force resetting via [`Quirk::Resetting`] or
+//! the equivalent [`resetting()`](Painted::resetting()) constructor. Force
+//! resetting, as the name implies, forces a reset suffix to be emitted after
+//! the value, irrespective of any lingering applied. It can be used as a way to
+//! finalize a lingering style.
 //!
 //! Lingering itself is useful in situations where a given style is to be
 //! repeated across multiple values, or when style is intended to persist even
@@ -230,7 +230,7 @@
 //! println!("Hello! {} {} things with {} {}?",
 //!     "How".magenta().underline().linger(),
 //!     "are".italic().linger(),
-//!     "you".on_yellow(), // doesn't linger, so all styling is cleared here
+//!     "you".on_yellow(), // doesn't linger, so all styling is reset here
 //!     "today".blue());
 //! ```
 //!
@@ -245,9 +245,9 @@
 //!
 //! println!("Hello! {} {} things with {} {}?",
 //!     "How".magenta().underline().linger(),
-//!     "are".italic(), // doesn't linger, so all styling is cleared here
+//!     "are".italic(), // doesn't linger, so all styling is reset here
 //!     "you".on_yellow().linger(),
-//!     "today".blue()); // doesn't linger; styling is cleared
+//!     "today".blue()); // doesn't linger; styling is reset
 //! ```
 //!
 //! `>` Hello!
@@ -265,8 +265,8 @@
 //! println!("{} B {} {} {} F",
 //!     "A".red().linger(),
 //!     "C".underline().linger(),
-//!     "D", // doesn't linger, but no styling applied, thus no clear
-//!     "E".clear());  // explicitly clear
+//!     "D", // doesn't linger, but no styling applied, thus no reset
+//!     "E".resetting());  // explicitly reset
 //! ```
 //!
 //! `>` <span style="color: red;"> A B <u>C D E</u> </span> F
@@ -343,6 +343,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "_nightly", feature(doc_cfg))]
 #![deny(missing_docs)]
+
+// FIXME: Remove once `clear()` and `Quirk::Clear` are removed.
+#![allow(useless_deprecated, deprecated)]
 
 #[cfg(all(not(feature = "std"), feature = "alloc"))]
 extern crate alloc;

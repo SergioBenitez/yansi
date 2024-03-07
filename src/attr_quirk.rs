@@ -104,20 +104,27 @@ pub enum Quirk {
     ///
     /// See the [crate level docs](crate#wrapping) for details.
     Wrap,
-    /// Linger: do not clear the style after it is applied.
+    /// Linger: do not reset the style after it is applied.
     ///
     /// Typically applied via the [`linger()`](crate::Painted::linger()) builder
     /// method.
     ///
     /// See the [crate level docs](crate#lingering) for details.
     Linger,
-    /// Always clear styling afterwards, even if no actual styling was applied.
+    /// **Deprecated:** Use [`Quirk::Resetting`] instead.
+    #[deprecated(
+        since = "1.0.1",
+        note = "renamed to `Resetting` due to builder method conflicts with `Vec::clear()`.\n\
+            `Quirk::Clear` will be removed in a future release."
+    )]
+    Clear,
+    /// Always reset styling afterwards, even if no actual styling was applied.
     ///
     /// Overrides the [`Linger`](Quirk::Linger) quirk if present.
     ///
-    /// Typically applied via the [`clear()`](crate::Painted::clear()) builder
-    /// method.
-    Clear,
+    /// Typically applied via the [`resetting()`](crate::Painted::resetting())
+    /// builder method.
+    Resetting,
     /// Brighten the foreground color if it is not already bright.
     ///
     /// Typically applied via the [`bright()`](crate::Painted::bright()) builder
@@ -140,7 +147,7 @@ set_enum! {
 }
 
 set_enum! {
-    Quirk { Mask, Wrap, Linger, Clear, Bright, OnBright }
+    Quirk { Mask, Wrap, Linger, Clear, Resetting, Bright, OnBright }
 }
 
 impl Attribute {
